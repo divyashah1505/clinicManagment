@@ -1,0 +1,9 @@
+{
+    "DB_URL": "mongodb://localhost:27017/clinicManagement",
+    "ACCESS_SECRET": "access_secret_123",
+    "REFRESH_SECRET": "refresh_secret_456",
+    "SMTP_HOST": "smtp.gmail.com",
+    "SMTP_PORT": 587,
+    "SMTP_USER": "divya.elaunch@gmail.com",
+    "SMTP_PASS": "qnjbaqhkutbuquze"
+}
