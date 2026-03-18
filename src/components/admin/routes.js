@@ -15,5 +15,6 @@ const routes = [
     controller: adminController.login,
     isPublic: true,
   },
+  
 ]
 module.exports = routeArray(routes, router, true);

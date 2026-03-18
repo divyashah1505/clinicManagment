@@ -1,5 +1,10 @@
 const doctorController = require("../doctors/controllers/doctorController")
-module.exports = [
+const { routeArray } = require("../../middleware")
+const express = require("express");
+
+const router = express.Router();
+
+const routes = [
     {
         path: "/register",
         method: "post",
@@ -14,3 +19,4 @@ module.exports = [
 
     },
 ]
+module.exports = routeArray(routes, router, true);

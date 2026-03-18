@@ -6,6 +6,8 @@ exports.appString = {
     EMAILALREDY_REGISTERED:"Email Is Already Registered",
     DOCTOR_RGISTRATION_SUCCESSFULL:"Doctor Registration Successfull",
     SERVER_ERROR:"Server Error",
-    DOCTOR_REGISTRATION_SUCCESSFULL_VERIFIED:"Doctor Registration Verfied Successfull"
-
+    DOCTOR_REGISTRATION_SUCCESSFULL_VERIFIED:"Doctor Registration Verfied Successfull",
+    COUNTRY_CODECONTACT_NUMBER_REQUIRED:"CountryCode & Contact Number is required",
+    CODEMUSTSTARTSWITHADDITIONOPERATORS:"Code Must Starts With + ",
+    INVALID_PHONEFORMAT:"invalid Phone Number Format"
 }

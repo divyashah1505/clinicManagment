@@ -7,11 +7,16 @@ const config = require("../config/devlopment.json");
 const client = require("../src/components/utils/redisClient")
 const app = express();
 const adminRouter = require("../src/components/admin/routes");
-
+const doctorRouter = require("../src/components/doctors/routes")
+const doctor = require("./components/doctors/models/doctor");
+app.set("view engine","ejs");
+app.set("views",path.resolve(__dirname,"../src/views"))
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/admins", adminRouter);
+app.use("/api/doctors", doctorRouter);
+
 mongoose.connect(config.DB_URL)
     .then(() => console.log(" MongoDB Connected"))
     .catch((err) => console.error(" DB Error:", err));

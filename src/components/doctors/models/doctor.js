@@ -42,7 +42,7 @@ const doctorSchema = new mongoose.Schema({
         default: 0
     },
     experienceDetails: {
-        type: Number
+        type: String
     },
     timeSlots: {
         type: Map,
@@ -69,7 +69,7 @@ const doctorSchema = new mongoose.Schema({
     isverify: {
         type: Number,
         ENUM: [ENUM.ISVERIFIED.VERIFIED, ENUM.ISVERIFIED.UNVERIFIED],
-        defualt: ENUM.isVerify.UNVERIFIED
+        defualt: ENUM.ISVERIFIED.UNVERIFIED
     },
     status: {
         type: Number,
