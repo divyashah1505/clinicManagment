@@ -14,7 +14,7 @@ const sendEmail = async (email,subject,html) =>{
       },
     });
    const mailOptions = {
-      from: `"Elaunch Infotech Quiz App" <${config.SMTP_USER}>`,
+      from: `"Elaunch Infotech Clinic Management App" <${config.SMTP_USER}>`,
       to:email,
       subject:subject,
       html:html,

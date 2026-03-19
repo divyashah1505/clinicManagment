@@ -62,6 +62,9 @@ const generateTokens = async (user) => {
 
     return { accessToken, refreshToken };
 };
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
 const handleRefreshToken = async (req, res) => {
     try {
         const authHeader = req.headers["authorization"];
@@ -112,4 +115,4 @@ const validateContact = (countryCode, contactNumber) => {
   }
 };
 
-module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, validateContact }
+module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, validateContact,generateOTP }

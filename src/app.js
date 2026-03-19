@@ -8,6 +8,7 @@ const client = require("../src/components/utils/redisClient")
 const app = express();
 const adminRouter = require("../src/components/admin/routes");
 const doctorRouter = require("../src/components/doctors/routes")
+const patientRouter = require("../src/components/patients/routes")
 const doctor = require("./components/doctors/models/doctor");
 app.set("view engine","ejs");
 app.set("views",path.resolve(__dirname,"../src/views"))
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/admins", adminRouter);
 app.use("/api/doctors", doctorRouter);
+app.use("api/patients",patientRouter)
 
 mongoose.connect(config.DB_URL)
     .then(() => console.log(" MongoDB Connected"))

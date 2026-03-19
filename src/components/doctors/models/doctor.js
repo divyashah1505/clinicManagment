@@ -52,9 +52,20 @@ const doctorSchema = new mongoose.Schema({
         },
         default: null
     },
-    loginToken: {
-        type: String
+    otp: {
+        type: String,
+        default: null,
     },
+    otpExpires: {
+        type: Date,
+        default: null,
+    },
+    isLoginVerified: {
+        type: Number,
+        ENUM: [ENUM.ISLOGINVERFIED.VERFIED, ENUM.ISAVAILABLE.UNVERIFIED],
+        default: ENUM.ISAVAILABLE.UNVERIFIED
+    },
+    
     verifiedCurrentSteps: {
         type: Number
     },
@@ -77,4 +88,14 @@ const doctorSchema = new mongoose.Schema({
         defualt: ENUM.DOCTORSTATUS.INACTIVE
     }
 })
+doctorSchema.methods.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
+doctorSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+});
+
 module.exports = mongoose.model("Doctor", doctorSchema);
