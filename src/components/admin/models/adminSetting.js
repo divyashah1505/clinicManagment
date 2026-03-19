@@ -70,6 +70,7 @@ const adminSettingsSchema = new mongoose.Schema(
     },
     wokringHours: {
       type: Object,
+     
     },
     leaveApplyBefore:{
       type:Number,

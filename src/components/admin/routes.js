@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { routeArray } = require("../../middleware")
 const adminController = require("./controllers/adminController");
+const adminSettingController = require("./controllers/adminSettingController");
 const routes = [
   {
     path: "/registeradmin",
@@ -15,6 +16,11 @@ const routes = [
     controller: adminController.login,
     isPublic: true,
   },
+  {
+    path:"/createProfileSteps",
+    method:"post",
+    controller:adminSettingController.createProfileSteps
+  }
   
 ]
 module.exports = routeArray(routes, router, true);
