@@ -14,7 +14,7 @@ const Doctor = require("../models/doctor");
 const doctorController = {
     doctorRegister: async (req, res) => {
         try {
-            const { username, email, password, countryCode, contactNumber, documents, appointmentsCharges, experienceDetails } = req.body;
+            const { username, email, password, countryCode, contactNumber } = req.body;
             console.log(req.body)
             const doctoExist = await doctor.findOne({ email });
             if (doctoExist) return error(res, { success: false, message: appString.EMAILALREDY_REGISTERED });
@@ -27,7 +27,7 @@ const doctorController = {
             const hashedPassword = await bcrypt.hash(password, 10);
             const token = crypto.randomBytes(32).toString('hex');
 
-            const doctorData = { username, email, password: hashedPassword, countryCode, contactNumber, documents, appointmentsCharges, experienceDetails };
+            const doctorData = { username, email, password: hashedPassword, countryCode, contactNumber };
 
             await client.set(`verify_doctor:${token}`, JSON.stringify(doctorData), { EX: 86400 });
 
@@ -76,7 +76,7 @@ const doctorController = {
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
-            
+
             const doctor = await Doctor.findOne({ email });
 
             if (!doctor || !(await doctor.matchPassword(password))) {

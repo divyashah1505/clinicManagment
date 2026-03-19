@@ -16,17 +16,18 @@ const routes = [
         isPublic: true
 
     },
-     {
-            path:"/patientLogin",
-            method:"post",
-            controller:patientController.login,
-            isPublic: true
-        },
-         {
-            path:"/verifylogin-otp",
-            method:"post",
-            controller:patientController.verifyOtpLogin,
-            isPublic: true
-        }
+    {
+        path: "/patientLogin",
+        method: "post",
+        controller: patientController.login,
+        isPublic: true
+    },
+    {
+        path: "/verifylogin-otp",
+        method: "post",
+        controller: patientController.verifyOtpLogin,
+        isPublic: true
+    },
+   
 ]
 module.exports = routeArray(routes, router, true);

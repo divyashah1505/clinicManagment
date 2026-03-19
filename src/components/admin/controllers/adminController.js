@@ -35,10 +35,11 @@ const adminController = {
       }
 
       const tokens = await generateTokens(admin);
-      success( res,  { username: admin.username, email: admin.email, ...tokens }, appString.LOGIN_SUCCESS );
+      return success( res,  { username: admin.username, email: admin.email, ...tokens }, appString.LOGIN_SUCCESS );
     } catch (err) {
-      error(res, appString.LOGIN_FAILED, 500);
+     return  error(res, appString.LOGIN_FAILED, 500);
     }
   },
+  
 }
 module.exports = adminController;

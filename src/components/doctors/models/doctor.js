@@ -98,4 +98,4 @@ doctorSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-module.exports = mongoose.model("Doctor", doctorSchema);
+module.exports = mongoose.model( appString.DOCTOR_MODEL, doctorSchema);

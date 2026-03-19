@@ -44,4 +44,4 @@ adminSchema.statics.softDelete = function (id) {
   return this.findByIdAndUpdate(id, { deletedAt: new Date() });
 };
 
-module.exports = mongoose.model("Admin", adminSchema);
+module.exports = mongoose.model( appString.ADMIN_MODEL, adminSchema);

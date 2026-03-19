@@ -58,4 +58,4 @@ patientsSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-module.exports = mongoose.model("Patients", patientsSchema);
+module.exports = mongoose.model(appString.PATIENT_MODEL, patientsSchema);

@@ -18,5 +18,12 @@ exports.appString = {
     LOGIN_FAILED:"LogIn Failed",
     INVALID_CREDENTIALS:"Invalid Credentials",
     INVALID_OR_EXPIRED_OTP:"Invalid & Expried otp",
-    PATIENT_NOT_FOUND:"pATIENT nOt found "
+    PATIENT_NOT_FOUND:"pATIENT nOt found ",
+    Forbidden:"You are Unauthorized",
+
+
+    ADMIN_SETTINGS_MODEL:"AdminSetting",
+    ADMIN_MODEL:"Admin",
+    DOCTOR_MODEL:"Doctor",
+    PATIENT_MODEL:"Patients"
 }

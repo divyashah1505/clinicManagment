@@ -5,7 +5,9 @@ const { appString } = require("../components/utils/appString");
 const Validator = require("validatorjs");
 // const user = require("../components/user/models/user")
 const admin = require("../components/admin/models/admin");
-const { getActiveToken } = require("../components/utils/commonutills");
+const { getActiveToken, error } = require("../components/utils/commonutills");
+const doctor = require("../components/doctors/models/doctor");
+const patient = require("../components/patients/models/patient");
 
 const verifyToken = async (req, res, next) => {
   try {
@@ -32,7 +34,7 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-const checkRole = (isAdminRoute) => async (req, res, next) => {
+const checkRole = (isAdminRoute,isDoctorRoute,isPatientRoute) => async (req, res, next) => {
   try {
     const userPayload = req.user;
 
@@ -50,15 +52,19 @@ const checkRole = (isAdminRoute) => async (req, res, next) => {
     if (isAdminRoute) {
       const adminData = await admin.findById(userId);
       if (adminData) return next();
-      return console.error(403).json({ message: appString.Forbidden });
-    } else {
-      const userData = await user.findById(userId);
-      if (userData) return next();
-      return console.error(403).json({ message: appString.Forbidden1 });
+      return error(res,{ message: appString.Forbidden });
+    } else if(isDoctorRoute){
+      const doctorData = await doctor.findById(userId);
+      if (doctorData) return next();
+      return error(res,{ message: appString.Forbidden1 });
+    }else if(isPatientRoute){
+        const patientData = await patient.findById(userId);
+      if (patientData) return next();
+      return error(res,{ message: appString.Forbidden1 });
     }
   } catch (error) {
     console.error("Auth Middleware Error:", error);
-    return console.error(500).json({ message: "Internal Server Error" });
+    return error(res,{ message: "Internal Server Error" });
   }
 };
 
@@ -72,7 +78,7 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
-const routeArray = (array_, prefix, isAdmin = false) => {
+const routeArray = (array_, prefix, isAdmin = false,isDoctor = false,isPatient = false) => {
   array_.forEach((route) => {
     const {
       method,
@@ -87,6 +93,8 @@ const routeArray = (array_, prefix, isAdmin = false) => {
     if (!isPublic) {
       middlewares.push(verifyToken);
       middlewares.push(checkRole(isAdmin));
+      middlewares.push(checkRole(isDoctor));
+      middlewares.push(checkRole(isPatient));
     }
     if (middleware)
       middlewares.push(

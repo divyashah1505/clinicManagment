@@ -21,7 +21,7 @@ const patientController = {
             console.log(req.body);
 
             // console.log(req.body)
-            const patientExist = await patient.findOne({ email });
+            const patientExist = await Patient.findOne({ email });
             if (patientExist) return error(res, { success: false, message: appString.EMAILALREDY_REGISTERED });
 
             const phoneValidation = validateContact(countryCode, contactNumber);
@@ -57,12 +57,12 @@ const patientController = {
 
             const patientsData = JSON.parse(redisData);
 
-            const existingDocor = await patient.findOne({ email: patientsData.email });
+            const existingDocor = await Patient.findOne({ email: patientsData.email });
             if (existingDocor) {
                 return res.render("alreadyVerified");
             }
 
-            const newPatient = new patient(patientsData);
+            const newPatient = new Patient(patientsData);
             await newPatient.save();
 
             await client.del(`verify_patients:${token}`);
@@ -83,9 +83,9 @@ const patientController = {
             console.log(req.body)
             const patient = await Patient.findOne({ email });
 
-            if (!patient || !(await patient.matchPassword(password))) {
-                return error(res, appString.INVALID_CREDENTIALS, 401);
-            }
+            // if (!patient || !(await patient.matchPassword(password))) {
+            //     return error(res, appString.INVALID_CREDENTIALS, 401);
+            // }
             console.log("hi")
 
             const otp = generateOTP();
@@ -146,6 +146,7 @@ const patientController = {
             console.error(err);
             error(res, appString.OTP_VERIFICATION_FAILED, 500);
         }
-    }
+    },
+    
 }
 module.exports = patientController;

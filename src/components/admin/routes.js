@@ -15,6 +15,10 @@ const routes = [
     controller: adminController.login,
     isPublic: true,
   },
-  
+  {
+    path:"/doctorList",
+    method:"get",
+    controller:adminController.doctorList
+  }
 ]
 module.exports = routeArray(routes, router, true);
