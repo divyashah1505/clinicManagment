@@ -17,5 +17,6 @@ exports.appString = {
     PATIENTS_REGISTRATION_SUCCESSFULL_VERIFIED:"Patients Verfied Successfully",
     LOGIN_FAILED:"LogIn Failed",
     INVALID_CREDENTIALS:"Invalid Credentials",
-    INVALID_OR_EXPIRED_OTP:"Invalid & Expried otp"
+    INVALID_OR_EXPIRED_OTP:"Invalid & Expried otp",
+    PATIENT_NOT_FOUND:"pATIENT nOt found "
 }

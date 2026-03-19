@@ -76,6 +76,7 @@ const doctorController = {
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
+            
             const doctor = await Doctor.findOne({ email });
 
             if (!doctor || !(await doctor.matchPassword(password))) {
