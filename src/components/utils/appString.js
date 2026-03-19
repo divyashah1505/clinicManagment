@@ -13,5 +13,9 @@ exports.appString = {
     LOGIN_SUCCESS_VERIFIED:"Login Verifiaction Is Successfully",
     OTP_VERIFICATION_FAILED:"Otp Verfication is Failed",
     OTP_SENT_SUCCESS: "OTP sent to your email.",
-    PATIENTS_RGISTRATION_SUCCESSFULL:"Patient Registration Successfull"
+    PATIENTS_RGISTRATION_SUCCESSFULL:"Patient Registration Successfull",
+    PATIENTS_REGISTRATION_SUCCESSFULL_VERIFIED:"Patients Verfied Successfully",
+    LOGIN_FAILED:"LogIn Failed",
+    INVALID_CREDENTIALS:"Invalid Credentials",
+    INVALID_OR_EXPIRED_OTP:"Invalid & Expried otp"
 }

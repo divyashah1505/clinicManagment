@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/admins", adminRouter);
 app.use("/api/doctors", doctorRouter);
-app.use("api/patients",patientRouter)
+app.use("/api/patients",patientRouter)
 
 mongoose.connect(config.DB_URL)
     .then(() => console.log(" MongoDB Connected"))

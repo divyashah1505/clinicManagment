@@ -1,7 +1,8 @@
 const doctor = require("../models/doctor");
 const { generateTokens, success, error, validateContact, generateOTP } = require("../../utils/commonutills");
 const { appString } = require("../../utils/appString");
-const bcrypt = require("bcryptjs"); const verificationTemplate = require("../../utils/emailTemplate");
+const bcrypt = require("bcryptjs"); 
+const verificationTemplate = require("../../utils/emailTemplate");
 
 const crypto = require("crypto")
 const { sendEmail } = require("../../utils/mailSender");
@@ -28,7 +29,7 @@ const doctorController = {
 
             const doctorData = { username, email, password: hashedPassword, countryCode, contactNumber, documents, appointmentsCharges, experienceDetails };
 
-            await client.set(`verify_user:${token}`, JSON.stringify(doctorData), { EX: 86400 });
+            await client.set(`verify_doctor:${token}`, JSON.stringify(doctorData), { EX: 86400 });
 
             const verifyURL = `http://localhost:3000/api/doctors/verify-mail/${token}`;
             await sendEmail(email, 'Verify Your Email', verificationTemplate(verifyURL));
@@ -45,7 +46,7 @@ const doctorController = {
             console.log("hit");
             const { token } = req.params;
 
-            const redisData = await client.get(`verify_user:${token}`);
+            const redisData = await client.get(`verify_doctor:${token}`);
             if (!redisData) {
                 return res.render("verificaionExpired");
             }
@@ -60,7 +61,7 @@ const doctorController = {
             const newDoctor = new doctor(doctorData);
             await newDoctor.save();
 
-            await client.del(`verify_user:${token}`);
+            await client.del(`verify_doctor:${token}`);
 
             await generateTokens(newDoctor)
 

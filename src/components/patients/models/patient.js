@@ -4,7 +4,7 @@ const { appString } = require("../../utils/appString");
 const ENUM = require("../../utils/enum")
 const { validation } = require('../../../components/utils/validation');
 const patientsSchema = new mongoose.Schema({
-     username: {
+    username: {
         type: String,
         unique: true,
         required: validation.required(appString.USERNAME_REQUIRED),
@@ -33,6 +33,20 @@ const patientsSchema = new mongoose.Schema({
         required: validation.required(appString.Contact_REQUIRED),
 
     },
+    otp: {
+        type: String,
+        default: null,
+    },
+    otpExpires: {
+        type: Date,
+        default: null,
+    },
+    isLoginVerified: {
+        type: Number,
+        ENUM: [ENUM.ISLOGINVERFIED.VERFIED, ENUM.ISAVAILABLE.UNVERIFIED],
+        default: ENUM.ISAVAILABLE.UNVERIFIED
+    },
+
 })
 patientsSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);

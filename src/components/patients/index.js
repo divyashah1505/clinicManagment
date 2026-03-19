@@ -1,6 +1,10 @@
+const express = require("express");
+const patientRoutesArray = require("./routes");
+const { routeArray } = require("../../middleware/index");
 
-const routeArray = require("./routes");
-const middleware = require("../../middleware/index");
-const router = require("express").Router();
-middleware.routeArray(routeArray, router);
-module.exports = router;
+const patientRouter = express.Router();
+
+routeArray(patientRoutesArray, patientRouter, true);
+
+module.exports = patientRouter;
+
