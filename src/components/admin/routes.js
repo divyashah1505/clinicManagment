@@ -19,7 +19,8 @@ const routes = [
   {
     path:"/createProfileSteps",
     method:"post",
-    controller:adminSettingController.createProfileSteps
+    controller:adminSettingController.createProfileSteps,
+   
   },
  
 ]

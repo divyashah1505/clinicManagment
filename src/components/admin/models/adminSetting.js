@@ -13,43 +13,44 @@ const adminSettingsSchema = new mongoose.Schema(
       step1: {
         key: {
           type: String,
-        },
-        isRequired: {
-          type: Number,
-          default: 1,
+          isRequired: true
         },
       },
       step2: {
         key: {
           type: String,
-        },
-        isRequired: {
-          type: Number,
-          default: 1,
+          isRequired: true
         },
       },
       step3: {
         key: {
           type: String,
-        },
-        isRequired: {
-          type: Number,
-          default: 1,
+          isRequired: true
         },
       },
       step4: {
         key: {
           type: String,
+          isRequired: true
         },
-        isRequired: {
-          type: Number,
-          default: 1,
+
+      },
+      step5: {
+        key: {
+          type: String,
+          isRequired: false
         },
       },
-   
+      step6: {
+        key: {
+          type: String,
+          isRequired: false
+        },
+      },
+
     },
-    noOfSteps:{
-      type:Number
+    noOfSteps: {
+      type: Number
     },
     doctorRefund: {
       type: Object,
@@ -60,20 +61,21 @@ const adminSettingsSchema = new mongoose.Schema(
     commonHolidays: {
       type: Array,
     },
-    workigHours: {
-      type: Array,
-     
+    workigHours:[ {
+      type: Map,
+      of:String
+
+    }],
+    leaveApplyBefore: {
+      type: Number,
+      default: 3
     },
-    leaveApplyBefore:{
-      type:Number,
-      default:3
-    },
-    maxLeaveApply:{
-      type:Number,
-      default:5
+    maxLeaveApply: {
+      type: Number,
+      default: 5
     }
   },
   { timestamps: true },
 );
 
-  module.exports = mongoose.model( appString.ADMIN_SETTINGS_MODEL,adminSettingsSchema,);
+module.exports = mongoose.model(appString.ADMIN_SETTINGS_MODEL, adminSettingsSchema,);
