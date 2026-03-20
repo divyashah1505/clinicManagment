@@ -20,7 +20,7 @@ const routes = [
     path:"/createProfileSteps",
     method:"post",
     controller:adminSettingController.createProfileSteps
-  }
-  
+  },
+ 
 ]
 module.exports = routeArray(routes, router, true);

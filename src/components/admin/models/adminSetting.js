@@ -46,15 +46,7 @@ const adminSettingsSchema = new mongoose.Schema(
           default: 1,
         },
       },
-      step5: {
-        key: {
-          type: String,
-        },
-        isRequired: {
-          type: Number,
-          default: 1,
-        },
-      },
+   
     },
     noOfSteps:{
       type:Number
@@ -68,8 +60,8 @@ const adminSettingsSchema = new mongoose.Schema(
     commonHolidays: {
       type: Array,
     },
-    wokringHours: {
-      type: Object,
+    workigHours: {
+      type: Array,
      
     },
     leaveApplyBefore:{
@@ -84,4 +76,4 @@ const adminSettingsSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model( appString.ADMIN_SETTINGS_MODEL,adminSettingsSchema,);
+  module.exports = mongoose.model( appString.ADMIN_SETTINGS_MODEL,adminSettingsSchema,);

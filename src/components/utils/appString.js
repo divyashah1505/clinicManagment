@@ -21,6 +21,7 @@ exports.appString = {
     PATIENT_NOT_FOUND: "pATIENT nOt found ",
     Forbidden: "You are Unauthorized",
     ADMINSETTING_NOT_FOUND: "Admin Setting Not found",
+    STEPSCREATED_SUCCESSFULLY:"",
 
     ADMIN_SETTINGS_MODEL: "AdminSetting",
     ADMIN_MODEL: "Admin",
