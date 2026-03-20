@@ -22,6 +22,11 @@ const routes = [
     controller:adminSettingController.createProfileSteps,
    
   },
+  {
+    path:"/verifyDoctor",
+     method:"post",
+    controller:adminController.verifyDoctor
+  }
  
 ]
 module.exports = routeArray(routes, router, true);

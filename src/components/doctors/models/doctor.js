@@ -81,11 +81,7 @@ const doctorSchema = new mongoose.Schema({
         ENUM: [ENUM.ISAVAILABLE.AVAILABLE, ENUM.ISAVAILABLE.UNAVAILABLE],
 
     },
-    isverify: {
-        type: Number,
-        ENUM: [ENUM.ISVERIFIED.VERIFIED, ENUM.ISVERIFIED.UNVERIFIED],
-        defualt: ENUM.ISVERIFIED.UNVERIFIED
-    },
+    
     status: {
         type: Number,
         ENUM: [ENUM.DOCTORSTATUS.ACTIVE, ENUM.DOCTORSTATUS.INACTIVE],

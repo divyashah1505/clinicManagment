@@ -1,28 +1,82 @@
 const doctor = require("../models/doctor");
-const { generateTokens, success, error, validateContact, generateOTP } = require("../../utils/commonutills");
+const adminSetting = require("../../admin/models/adminSetting");
+const { success, error } = require("../../utils/commonutills");
 const { appString } = require("../../utils/appString");
-const adminSetting = require("../../admin/models/adminSetting");
-const adminSetting = require("../../admin/models/adminSetting");
+
 const doctorEditProfileController = {
     editProfile: async (req, res) => {
         try {
-            console.log("heloow world")
-            const doctorId = req?.user?.id;
-            const { defaultBalance, doctorProfileSteps, doctorRefund, patientRefund, commonHolidays, wokringHours, leaveApplyBefore, maxLeaveApply } = req.body;
-            console.log(req.body)
-            let documents = await doctor.findById({ doctorId });
-            if (!documents) {
-                return error(res, { message: appString.DOCTORID_NOT_FOUND })
-            }
-            const AdminSetting = await adminSetting.findOne({})
-              if (!AdminSetting) {
-                return error(res, { message: appString.ADMINSETTING_NOT_FOUND })
-            }
-            // const mandatorySteps = await adminSetting.doctorProfileSteps.
-        } catch {
+            console.log("editProfile hit ");
 
+            const doctorId = req.user.id;
+
+            let doctorData = await doctor.findById(doctorId);
+            if (!doctorData) {
+                return error(res, { message: appString.DOCTORID_NOT_FOUND });
+            }
+
+            const adminSettings = await adminSetting.findOne({});
+            if (!adminSettings) {
+                return error(res, { message: appString.ADMINSETTING_NOT_FOUND });
+            }
+
+            // Update profile
+            Object.assign(doctorData, req.body);
+
+            const stepsObj = adminSettings.doctorProfileSteps || {};
+            const steps = Object.values(stepsObj);
+
+            let completedSteps = [];
+
+            steps.forEach((step) => {
+                const key = step?.key;
+                if (!key) return;
+
+                const value = doctorData[key];
+
+                let isValid = false;
+
+                if (value instanceof Map) {
+                    isValid = value.size > 0;
+                } else if (typeof value === "object" && value !== null) {
+                    isValid = Object.keys(value).length > 0;
+                } else {
+                    isValid = value !== undefined && value !== null && value !== "";
+                }
+
+                if (isValid) {
+                    completedSteps.push(key);
+                }
+            });
+
+            doctorData.verifiedCurrentSteps = completedSteps;
+
+            const requiredSteps = steps.slice(0, 4);
+
+            const isAllCompleted = requiredSteps.every(step =>
+                completedSteps.includes(step.key)
+            );
+
+            if (isAllCompleted) {
+                doctorData.isProfileComplete = 1;
+            } else {
+                doctorData.isProfileComplete = 0;
+            }
+
+            await doctorData.save();
+
+            return success(res, {
+                message: "Profile updated successfully",
+                data: doctorData
+            });
+
+        } catch (err) {
+            console.error(err);
+            return error(res, { message: "Server error" });
         }
     }
-}
-module.exports = doctorEditProfileController
+};
+
+module.exports = doctorEditProfileController;
+
 

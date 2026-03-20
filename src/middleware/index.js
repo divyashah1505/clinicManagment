@@ -74,7 +74,7 @@ const checkRole = (isAdminRoute, isDoctorRoute, isPatientRoute) => {
   if (isDoctorRoute) {
     const data = await doctor.findById(userId);
     if (data) return next();
-    return res.status(403).json({ message: appString.Forbidden1 });
+    return res.status(403).json({ message: appString.DOCTOR_UNAUTHORIZED });
   }
 
   if (isPatientRoute) {

@@ -1,6 +1,9 @@
 const Admin = require("../models/admin");
 const { generateTokens, success, error } = require("../../utils/commonutills");
 const { appString } = require("../../utils/appString");
+const Doctor = require("../../doctors/models/doctor");
+const ENUM = require("../../utils/enum")
+
 const adminController = {
   register: async (req, res) => {
     try {
@@ -14,7 +17,7 @@ const adminController = {
 
       const tokens = generateTokens(newAdmin._id);
 
-      return success( res,  { admin: newAdmin, ...tokens }, appString.ADMIN_CREATED,201);
+      return success(res, { admin: newAdmin, ...tokens }, appString.ADMIN_CREATED, 201);
 
     } catch (err) {
       if (err.code === 11000) {
@@ -35,11 +38,26 @@ const adminController = {
       }
 
       const tokens = await generateTokens(admin);
-      return success( res,  { username: admin.username, email: admin.email, ...tokens }, appString.LOGIN_SUCCESS );
+      return success(res, { username: admin.username, email: admin.email, ...tokens }, appString.LOGIN_SUCCESS);
     } catch (err) {
-     return  error(res, appString.LOGIN_FAILED, 500);
+      return error(res, appString.LOGIN_FAILED, 500);
     }
   },
-  
+  verifyDoctor: async (req, res) => {
+    const { doctorId } = req.query;
+    const doctor = await Doctor.findById(doctorId);
+    console.log(doctor);
+    
+    if (!doctor || doctor.isProfileComplete === ENUM.ISPROFILECOMPLETE.COMPLETE) {
+      return error(res, { message: appString.DOCTOR_NOT_ELIGIBLE });
+    }
+
+    doctor.isProfileComplete = 1;
+    await doctor.save();
+
+    return success(res, { message: appString.DOCTOR_VERIFIED_SUCCESSFULLY });
+  }
+
+
 }
 module.exports = adminController;
