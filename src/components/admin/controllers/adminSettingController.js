@@ -22,8 +22,7 @@ const adminSettingController = {
             let adminSettings = await adminSetting.findOne({});
 
             if (adminSettings) {
-                adminSettings = await adminSetting.findOneAndUpdate(
-                    {},
+                adminSettings = await adminSetting.findOneAndUpdate({},
                     {
                         defaultBalance,
                         doctorProfileSteps,
@@ -40,16 +39,7 @@ const adminSettingController = {
                 return success(res, {  success: true, message: appString.ADMINSETTING_UPDATED, data: adminSettings, });
             }
 
-            const newSteps = await adminSetting.create({
-                defaultBalance,
-                doctorProfileSteps,
-                doctorRefund,
-                patientRefund,
-                commonHolidays,
-                wokringHours,
-                leaveApplyBefore,
-                maxLeaveApply,
-            });
+            const newSteps = await adminSetting.create({  defaultBalance,  doctorProfileSteps,    doctorRefund,  patientRefund,   commonHolidays,  wokringHours,  leaveApplyBefore,   maxLeaveApply,});
 
             return success(res, {
                 success: true,

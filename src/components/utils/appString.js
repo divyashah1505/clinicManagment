@@ -24,6 +24,7 @@ exports.appString = {
     STEPSCREATED_SUCCESSFULLY:"Steps Created Successfully",
     REQUIRED_FIELDS:"Please provide all the required fields",
     ADMINSETTING_UPDATED:"Settings updated successfully",
+    DOCTORID_NOT_FOUND:"Doctor Id Not Found",
 
     ADMIN_SETTINGS_MODEL: "AdminSetting",
     ADMIN_MODEL: "Admin",

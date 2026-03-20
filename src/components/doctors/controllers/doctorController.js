@@ -1,7 +1,7 @@
 const doctor = require("../models/doctor");
 const { generateTokens, success, error, validateContact, generateOTP } = require("../../utils/commonutills");
 const { appString } = require("../../utils/appString");
-const bcrypt = require("bcryptjs"); 
+const bcrypt = require("bcryptjs");
 const verificationTemplate = require("../../utils/emailTemplate");
 
 const crypto = require("crypto")
@@ -25,14 +25,9 @@ const doctorController = {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-           
+            const newDoctor = await new doctor({ username, email, password: hashedPassword, countryCode, contactNumber })
+            await newDoctor.save();
 
-            const doctorData = { username, email, password: hashedPassword, countryCode, contactNumber };
-
-            await client.set(`verify_doctor:${token}`, JSON.stringify(doctorData), { EX: 86400 });
-
-            const verifyURL = `http://localhost:3000/api/doctors/verify-mail/${token}`;
-            await sendEmail(email, 'Verify Your Email', verificationTemplate(verifyURL));
 
             return success(res, { success: true, message: appString.DOCTOR_RGISTRATION_SUCCESSFULL });
         } catch (err) {
@@ -41,38 +36,7 @@ const doctorController = {
         }
     },
 
-    verifyEmail: async (req, res) => {
-        try {
-            console.log("hit");
-            const { token } = req.params;
 
-            const redisData = await client.get(`verify_doctor:${token}`);
-            if (!redisData) {
-                return res.render("verificaionExpired");
-            }
-
-            const doctorData = JSON.parse(redisData);
-
-            const existingDocor = await doctor.findOne({ email: doctorData.email });
-            if (existingDocor) {
-                return res.render("alreadyVerified");
-            }
-
-            const newDoctor = new doctor(doctorData);
-            await newDoctor.save();
-
-            await client.del(`verify_doctor:${token}`);
-
-            await generateTokens(newDoctor)
-
-            return success(res, { success: true, message: appString.DOCTOR_REGISTRATION_SUCCESSFULL_VERIFIED });
-
-
-        } catch (error) {
-            console.error("Verification Error:", error);
-            return res.render("verificaionExpired");
-        }
-    },
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -98,7 +62,7 @@ const doctorController = {
 
             success(
                 res,
-                { message:appString.OTP_SENT_SUCCESS, email: doctor.email },
+                { message: appString.OTP_SENT_SUCCESS, email: doctor.email },
                 appString.OTP_SENT_SUCCESS
             );
         } catch (err) {

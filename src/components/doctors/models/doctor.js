@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { appString } = require("../../utils/appString");
+const  {appString}  = require("../../utils/appString");
 const ENUM = require("../../utils/enum")
 const { validation } = require('../../../components/utils/validation');
 const doctorSchema = new mongoose.Schema({
@@ -35,14 +35,16 @@ const doctorSchema = new mongoose.Schema({
     },
     documents: {
         type: Map,
-        of: String
+        of: String,
+        default: null
     },
     appointmentsCharges: {
         type: Number,
-        default: 0
+        default: null
     },
     experienceDetails: {
-        type: String
+        type: String,
+        default: null
     },
     timeSlots: {
         type: Map,
@@ -65,12 +67,14 @@ const doctorSchema = new mongoose.Schema({
         ENUM: [ENUM.ISLOGINVERFIED.VERFIED, ENUM.ISAVAILABLE.UNVERIFIED],
         default: ENUM.ISAVAILABLE.UNVERIFIED
     },
-    
+
     verifiedCurrentSteps: {
-        type: Number
+        type: [String]
     },
-    verfiedPendingSteps: {
-        type: Number
+    isProfileComplete: {
+        type: Number,
+        ENUM: [ENUM.ISPROFILECOMPLETE.COMPLETE, ENUM.ISPROFILECOMPLETE.INCOMPLTE],
+        default: ENUM.ISAVAILABLE.INCOMPLTE
     },
     isAvailable: {
         type: Number,
@@ -98,4 +102,4 @@ doctorSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-module.exports = mongoose.model( appString.DOCTOR_MODEL, doctorSchema);
+module.exports = mongoose.model(appString.DOCTOR_MODEL, doctorSchema);

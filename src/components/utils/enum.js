@@ -14,5 +14,9 @@ module.exports = {
     ISLOGINVERFIED:{
         VERFIED:1,
         UNVERIFIED:0
+    },
+    ISPROFILECOMPLETE:{
+        COMPLETE:1,
+        INCOMPLTE:0
     }
 }
