@@ -7,17 +7,17 @@ const adminSettingController = {
         console.log("hi")
         try {
             console.log("hit")
-            const {  defaultBalance,doctorProfileSteps,doctorRefund,patientRefund,  commonHolidays,workigHours,leaveApplyBefore,maxLeaveApply,} = req.body;
+            const {  defaultBalance,doctorProfileSteps,doctorRefund,patientRefund,  commonHolidays,wokringHours,leaveApplyBefore,maxLeaveApply,} = req.body;
             
             console.log(req.body)
 
-            // if (defaultBalance === undefined || !doctorProfileSteps || !doctorRefund || !patientRefund || !commonHolidays || !workigHours || leaveApplyBefore === undefined || maxLeaveApply === undefined) {
-            //     return error(res, {
-            //         success: false,
-            //         error: appString.REQUIRED_FIELDS,
-            //     });
+            if (defaultBalance === undefined || !doctorProfileSteps || !doctorRefund || !patientRefund || !commonHolidays || !wokringHours || leaveApplyBefore === undefined || maxLeaveApply === undefined) {
+                return error(res, {
+                    success: false,
+                    error: appString.REQUIRED_FIELDS,
+                });
 
-            // }
+            }
             console.log("hello")
             let adminSettings = await adminSetting.findOne({});
 
@@ -30,7 +30,7 @@ const adminSettingController = {
                         doctorRefund,
                         patientRefund,
                         commonHolidays,
-                        workigHours,
+                        wokringHours,
                         leaveApplyBefore,
                         maxLeaveApply,
                     },
@@ -46,7 +46,7 @@ const adminSettingController = {
                 doctorRefund,
                 patientRefund,
                 commonHolidays,
-                workigHours,
+                wokringHours,
                 leaveApplyBefore,
                 maxLeaveApply,
             });

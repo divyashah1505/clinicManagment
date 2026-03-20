@@ -25,7 +25,7 @@ const doctorController = {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const token = crypto.randomBytes(32).toString('hex');
+           
 
             const doctorData = { username, email, password: hashedPassword, countryCode, contactNumber };
 

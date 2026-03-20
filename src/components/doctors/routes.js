@@ -11,13 +11,13 @@ const routes = [
         controller: doctorController.doctorRegister,
         isPublic: true,
     },
-    {
-        path: "/verify-mail/:token",
-        method: "get",
-        controller: doctorController.verifyEmail,
-        isPublic: true
+    // {
+    //     path: "/verify-mail/:token",
+    //     method: "get",
+    //     controller: doctorController.verifyEmail,
+    //     isPublic: true
 
-    },
+    // },
     {
         path:"/doctorLogin",
         method:"post",

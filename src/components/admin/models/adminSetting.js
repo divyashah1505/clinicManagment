@@ -61,7 +61,7 @@ const adminSettingsSchema = new mongoose.Schema(
     commonHolidays: {
       type: Array,
     },
-    workigHours:[ {
+    wokringHours:[ {
       type: Map,
       of:String
 
