@@ -4,7 +4,7 @@ const ENUM = require("../../utils/enum.js")
 const doctorLeaveSchema = new mongoose.Schema({
     doctorId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Doctor",
+        ref: appString.DOCTOR_MODEL,
         required: true
     },
     fromDate: {
@@ -18,8 +18,15 @@ const doctorLeaveSchema = new mongoose.Schema({
     reason: {
         type: String
     },
+    slots:[{
+        type:Map,
+        of:String,
+        require:true
+    }],
     status: {
         type: Number,
+
+
         ENUM: [ENUM.DOCTORLEAVESTATUS.PENDING, ENUM.DOCTORLEAVESTATUS.ACCEPT,ENUM.DOCTORLEAVESTATUS.REJECT],
          default: ENUM.DOCTORLEAVESTATUS.PENDING
     }

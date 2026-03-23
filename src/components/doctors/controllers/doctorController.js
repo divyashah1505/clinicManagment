@@ -35,8 +35,6 @@ const doctorController = {
             return error(res, { success: false, message: appString.SERVER_ERROR });
         }
     },
-
-
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -109,7 +107,7 @@ const doctorController = {
         try {
             console.log("hellowww")
             const doctorId = req.user.id;
-            const { fromDate, toDate, reason } = req.body
+            const { fromDate, toDate, reason,slots } = req.body
             const today = new Date()
             const leaveStart = new Date(fromDate);
             const diffTime = leaveStart - today;
@@ -138,8 +136,8 @@ const doctorController = {
                     messgae: appString.ALREDY_APPLIED_LEAVE
                 });
             }
-            const leave = await doctorLeave.create({ doctorId, fromDate, toDate, reason })
-             return success(res, {  success: true,   messgae: appString.LEAVE_APPLIED_SUCCESSFULLY,data:leave  });
+            const leave = await doctorLeave.create({ doctorId, fromDate, toDate, reason,slots})
+             return success(res, { success: true, messgae: appString.LEAVE_APPLIED_SUCCESSFULLY,data:leave  });
         } catch (err) {
             console.error(err)
               return error(res, { success: false,messgae: appString.SERVER_ERROR });

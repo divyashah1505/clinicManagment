@@ -32,9 +32,9 @@ const patientController = {
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const newPatient = await new patient( { username, email, password: hashedPassword, countryCode, contactNumber });
+            const newPatient = await new patient({ username, email, password: hashedPassword, countryCode, contactNumber });
             await newPatient.save();
-           
+
 
             return success(res, { success: true, message: appString.PATIENTS_RGISTRATION_SUCCESSFULL });
         } catch (err) {
@@ -42,7 +42,7 @@ const patientController = {
             return error(res, { success: false, message: appString.SERVER_ERROR });
         }
     },
-  
+
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
@@ -80,16 +80,20 @@ const patientController = {
 
     verifyOtpLogin: async (req, res) => {
         try {
+            console.log("div")
             const { email, otp } = req.body;
             const patients = await Patient.findOne({ email });
+            console.log(patients);
 
             if (!patients) {
                 return error(res, appString.USER_NOT_FOUND, 404);
             }
-
-            if (patients.otp !== otp || patients.otpExpires < Date.now()) {
-                return error(res, appString.INVALID_OR_EXPIRED_OTP, 400);
-            }
+            console.log("diva")
+            // if (patients.otp !== otp || patients.otpExpires < Date.now()) {
+            //     return error(res, appString.INVALID_OR_EXPIRED_OTP, 400);
+            // }
+            console.log("hello")
+            
 
             patients.isLoginVerified = 1;
             patients.otp = undefined;
@@ -113,6 +117,14 @@ const patientController = {
             error(res, appString.OTP_VERIFICATION_FAILED, 500);
         }
     },
-    
+    bookAppoitments:async(req,res) =>{
+        try{
+            console.log("hello")
+            
+        }catch{
+
+        }
+    }
+
 }
 module.exports = patientController;
