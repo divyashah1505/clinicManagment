@@ -9,13 +9,7 @@ const routes = [
         controller: patientController.patientRegister,
         isPublic: true,
     },
-    {
-        path: "/verify-mail/:token",
-        method: "get",
-        controller: patientController.verifyEmail,
-        isPublic: true
-
-    },
+   
     {
         path: "/patientLogin",
         method: "post",

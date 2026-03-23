@@ -9,6 +9,7 @@ const { render } = require("ejs");
 const client = require("../../utils/redisClient");
 // const patient = require("../models/patient");
 const Patient = require("../models/patient");
+const patient = require("../models/patient");
 
 const patientController = {
     patientRegister: async (req, res) => {
@@ -30,14 +31,10 @@ const patientController = {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const token = crypto.randomBytes(32).toString('hex');
 
-            const patientsData = { username, email, password: hashedPassword, countryCode, contactNumber };
-
-            await client.set(`verify_patients:${token}`, JSON.stringify(patientsData), { EX: 86400 });
-
-            const verifyURL = `http://localhost:3000/api/patients/verify-mail/${token}`;
-            await sendEmail(email, 'Verify Your Email', verificationTemplate(verifyURL));
+            const newPatient = await new patient( { username, email, password: hashedPassword, countryCode, contactNumber });
+            await newPatient.save();
+           
 
             return success(res, { success: true, message: appString.PATIENTS_RGISTRATION_SUCCESSFULL });
         } catch (err) {
@@ -45,38 +42,7 @@ const patientController = {
             return error(res, { success: false, message: appString.SERVER_ERROR });
         }
     },
-    verifyEmail: async (req, res) => {
-        try {
-            console.log("hit");
-            const { token } = req.params;
-
-            const redisData = await client.get(`verify_patients:${token}`);
-            if (!redisData) {
-                return res.render("verificaionExpired");
-            }
-
-            const patientsData = JSON.parse(redisData);
-
-            const existingDocor = await Patient.findOne({ email: patientsData.email });
-            if (existingDocor) {
-                return res.render("alreadyVerified");
-            }
-
-            const newPatient = new Patient(patientsData);
-            await newPatient.save();
-
-            await client.del(`verify_patients:${token}`);
-
-            await generateTokens(newPatient)
-
-            return success(res, { success: true, message: appString.PATIENTS_REGISTRATION_SUCCESSFULL_VERIFIED });
-
-
-        } catch (error) {
-            console.error("Verification Error:", error);
-            return res.render("verificaionExpired");
-        }
-    },
+  
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
