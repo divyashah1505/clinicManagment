@@ -21,7 +21,7 @@ const doctorLeaveSchema = new mongoose.Schema({
     status: {
         type: Number,
         ENUM: [ENUM.DOCTORLEAVESTATUS.PENDING, ENUM.DOCTORLEAVESTATUS.ACCEPT,ENUM.DOCTORLEAVESTATUS.REJECT],
-         defualt: ENUM.DOCTORLEAVESTATUS.PENDING
+         default: ENUM.DOCTORLEAVESTATUS.PENDING
     }
 })
 module.exports = mongoose.model(appString.DOCTOR_LEAVE, doctorLeaveSchema);

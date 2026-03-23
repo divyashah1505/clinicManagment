@@ -61,12 +61,14 @@ const adminController = {
   },
   updateLeaveStatus:async(req,res) =>{
     try{
-      const {leveId} = req.params;
+      const {leaveId} = req.params;
+      console.log(leaveId);
+      
       const {status} = req.body;
       if(![1,2].includes(status)){
         return error(res,{success:false,message:appString.STATUS_MUSTBE_1OR2})
       }
-      const leave = await doctorLeave.findById(leveId);
+      const leave = await doctorLeave.findById(leaveId);
       if(!leave){
         return error(res,{ success:false,message:appString.LEVAE_REQUEST_NOT_FOUND})
       }
