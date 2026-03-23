@@ -26,6 +26,12 @@ const routes = [
     path:"/verifyDoctor",
      method:"post",
     controller:adminController.verifyDoctor
+  },
+  {
+    path:"/leavestatus/:leaveId",
+    method:"put",
+    controller:adminController.updateLeaveStatus
+
   }
  
 ]

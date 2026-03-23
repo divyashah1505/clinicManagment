@@ -9,7 +9,7 @@ const { sendEmail } = require("../../utils/mailSender");
 const { render } = require("ejs");
 const client = require("../../utils/redisClient");
 const Doctor = require("../models/doctor");
-
+const doctorLeave = require("../models/doctorLeave");
 
 const doctorController = {
     doctorRegister: async (req, res) => {
@@ -104,6 +104,47 @@ const doctorController = {
             console.error(err);
             error(res, appString.OTP_VERIFICATION_FAILED, 500);
         }
+    },
+    applyLeave: async (req, res) => {
+        try {
+            console.log("hellowww")
+            const doctorId = req.user.id;
+            const { fromDate, toDate, reason } = req.body
+            const today = new Date()
+            const leaveStart = new Date(fromDate);
+            const diffTime = leaveStart - today;
+            const diffDays = diffTime / (1000 * 60 * 60 * 24)
+            if (diffDays < 3) {
+                return error(res, {
+                    success: false,
+                    messgae: appString.LEAVE_MUST_APPLY_BEFORE_3DAYS
+                });
+            }
+            if (new Date(toDate) < leaveStart) {
+                return error(res, {
+                    success: false,
+                    messgae: appString.TODATE_CANNOT_BEFOR_FROM_DATE
+                });
+            }
+            const exisitngLeave = await doctorLeave.findOne({
+                doctorId,
+                fromDate: { $lte: toDate },
+                toDate: { $gte: fromDate },
+
+            })
+            if(exisitngLeave){
+                  return error(res, {
+                    success: false,
+                    messgae: appString.ALREDY_APPLIED_LEAVE
+                });
+            }
+            const leave = await doctorLeave.create({ doctorId, fromDate, toDate, reason })
+             return success(res, {  success: true,   messgae: appString.LEAVE_APPLIED_SUCCESSFULLY,data:leave  });
+        } catch (err) {
+            console.error(err)
+              return error(res, { success: false,messgae: appString.SERVER_ERROR });
+        }
+
     }
 
 }

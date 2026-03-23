@@ -82,6 +82,8 @@ const doctorSchema = new mongoose.Schema({
 
     },
     
+
+    
     status: {
         type: Number,
         ENUM: [ENUM.DOCTORSTATUS.ACTIVE, ENUM.DOCTORSTATUS.INACTIVE],

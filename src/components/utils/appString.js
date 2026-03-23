@@ -29,8 +29,19 @@ exports.appString = {
     PROFILE_UPDATED_SUCCESSFULLY: "Profile updated successfully",
     DOCTOR_VERIFIED_SUCCESSFULLY: "Doctor verified Successfully",
     DOCTOR_NOT_ELIGIBLE: "Doctor not eligible or Doctor Allready verified",
+    LEAVE_MUST_APPLY_BEFORE_3DAYS: "leve must be apply befor 3 days",
+    TODATE_CANNOT_BEFOR_FROM_DATE: "to date cannot be before from date",
+    ALREDY_APPLIED_LEAVE: "Leave Alredy Applied For Selected Dates",
+    LEAVE_APPLIED_SUCCESSFULLY: "Leave Applied Successfully",
+    STATUS_MUSTBE_1OR2: "Status must be either 1 or 2",
+    LEVAE_REQUEST_NOT_FOUND: "Leave Request Not Found",
+    LEAVE_ALEREADY_PROCEED: "Leave Alredy Proceed",
+    LEAVE_APPROVED: "Leave Approved SuccessFully",
+    LEAVE_REJECT: "Leave Reject Successfully",
+
     ADMIN_SETTINGS_MODEL: "AdminSetting",
     ADMIN_MODEL: "Admin",
     DOCTOR_MODEL: "Doctor",
-    PATIENT_MODEL: "Patients"
+    PATIENT_MODEL: "Patients",
+    DOCTOR_LEAVE: "DoctorLeave"
 }

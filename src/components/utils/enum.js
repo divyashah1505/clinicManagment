@@ -18,5 +18,10 @@ module.exports = {
     ISPROFILECOMPLETE:{
         COMPLETE:1,
         INCOMPLTE:0
+    },
+    DOCTORLEAVESTATUS:{
+        PENDING:0,
+        ACCEPT:1,
+        REJECT:2
     }
 }

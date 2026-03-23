@@ -11,22 +11,28 @@ const routes = [
         controller: doctorController.doctorRegister,
         isPublic: true,
     },
-   
+
     {
-        path:"/doctorLogin",
-        method:"post",
-        controller:doctorController.login,
+        path: "/doctorLogin",
+        method: "post",
+        controller: doctorController.login,
         isPublic: true
     },
-     {
-        path:"/verifylogin-otp",
-        method:"post",
-        controller:doctorController.verifyOtpLogin,
+    {
+        path: "/verifylogin-otp",
+        method: "post",
+        controller: doctorController.verifyOtpLogin,
         isPublic: true
-    },{
-        path:"/updateDoctorProfile",
-        method:"put",
-        controller:doctorEditProfileController.editProfile,
+    },
+    {
+        path: "/updateDoctorProfile",
+        method: "put",
+        controller: doctorEditProfileController.editProfile,
+    },
+    {
+        path: "/apply-leave",
+        method: "post",
+        controller: doctorController.applyLeave
     }
 ]
-module.exports = routeArray(routes, router, false,true,false);
+module.exports = routeArray(routes, router, false, true, false);
