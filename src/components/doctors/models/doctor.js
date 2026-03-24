@@ -69,7 +69,8 @@ const doctorSchema = new mongoose.Schema({
     },
 
     verifiedCurrentSteps: {
-        type: [String]
+        type: [String],
+        default:[]
     },
     isProfileComplete: {
         type: Number,

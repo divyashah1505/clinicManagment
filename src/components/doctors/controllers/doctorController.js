@@ -68,6 +68,7 @@ const doctorController = {
             error(res, appString.LOGIN_FAILED, 500);
         }
     },
+
     verifyOtpLogin: async (req, res) => {
         try {
             const { email, otp } = req.body;
@@ -105,45 +106,88 @@ const doctorController = {
     },
     applyLeave: async (req, res) => {
         try {
-            console.log("hellowww")
+            console.log("hellowww");
+
             const doctorId = req.user.id;
-            const { fromDate, toDate, reason,slots } = req.body
-            const today = new Date()
+            const { fromDate, toDate, reason, slots } = req.body;
+
+            const today = new Date();
             const leaveStart = new Date(fromDate);
+            const leaveEnd = new Date(toDate);
+
+            if (slots) {
+                if (!Array.isArray(slots) || slots.length === 0) {
+                    return error(res, {
+                        success: false,
+                        message: "Slots must be a non-empty array"
+                    });
+                }
+
+                const startDateOnly = leaveStart.toISOString().split("T")[0];
+                const endDateOnly = leaveEnd.toISOString().split("T")[0];
+
+                if (startDateOnly !== endDateOnly) {
+                    return error(res, {
+                        success: false,
+                        message: "When slots are selected, fromDate and toDate must be the same day"
+                    });
+                }
+            }
+
             const diffTime = leaveStart - today;
-            const diffDays = diffTime / (1000 * 60 * 60 * 24)
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
             if (diffDays < 3) {
                 return error(res, {
                     success: false,
-                    messgae: appString.LEAVE_MUST_APPLY_BEFORE_3DAYS
+                    message: appString.LEAVE_MUST_APPLY_BEFORE_3DAYS
                 });
             }
-            if (new Date(toDate) < leaveStart) {
+
+            if (leaveEnd < leaveStart) {
                 return error(res, {
                     success: false,
-                    messgae: appString.TODATE_CANNOT_BEFOR_FROM_DATE
+                    message: appString.TODATE_CANNOT_BEFOR_FROM_DATE
                 });
             }
-            const exisitngLeave = await doctorLeave.findOne({
+
+            const existingLeave = await doctorLeave.findOne({
                 doctorId,
-                fromDate: { $lte: toDate },
-                toDate: { $gte: fromDate },
+                fromDate: { $lte: leaveEnd },
+                toDate: { $gte: leaveStart }
+            });
 
-            })
-            if(exisitngLeave){
-                  return error(res, {
+            if (existingLeave) {
+                return error(res, {
                     success: false,
-                    messgae: appString.ALREDY_APPLIED_LEAVE
+                    message: appString.ALREDY_APPLIED_LEAVE
                 });
             }
-            const leave = await doctorLeave.create({ doctorId, fromDate, toDate, reason,slots})
-             return success(res, { success: true, messgae: appString.LEAVE_APPLIED_SUCCESSFULLY,data:leave  });
-        } catch (err) {
-            console.error(err)
-              return error(res, { success: false,messgae: appString.SERVER_ERROR });
-        }
 
+            const leave = await doctorLeave.create({
+                doctorId,
+                fromDate: leaveStart,
+                toDate: leaveEnd,
+                reason,
+                slots
+            });
+
+            return success(res, {
+                success: true,
+                message: appString.LEAVE_APPLIED_SUCCESSFULLY,
+                data: leave
+            });
+
+        } catch (err) {
+            console.error(err);
+            return error(res, {
+                success: false,
+                message: appString.SERVER_ERROR
+            });
+        }
     }
+
+
 
 }
 module.exports = doctorController

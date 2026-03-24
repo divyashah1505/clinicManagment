@@ -21,7 +21,7 @@ const doctorLeaveSchema = new mongoose.Schema({
     slots:[{
         type:Map,
         of:String,
-        require:true
+        // require:true
     }],
     status: {
         type: Number,

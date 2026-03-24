@@ -4,28 +4,45 @@ const { appString } = require("../../utils/appString");
 
 const adminSettingController = {
     createProfileSteps: async (req, res) => {
-        console.log("hi")
         try {
-            console.log("hit")
-            const {  defaultBalance,doctorProfileSteps,doctorRefund,patientRefund,  commonHolidays,wokringHours,leaveApplyBefore,maxLeaveApply,} = req.body;
-            
-            console.log(req.body)
+            const {
+                defaultBalance,
+                doctorProfileSteps,
+                noOfSteps,
+                doctorRefund,
+                patientRefund,
+                commonHolidays,
+                wokringHours,
+                leaveApplyBefore,
+                maxLeaveApply,
+            } = req.body;
 
-            if (defaultBalance === undefined || !doctorProfileSteps || !doctorRefund || !patientRefund || !commonHolidays || !wokringHours || leaveApplyBefore === undefined || maxLeaveApply === undefined) {
+            if (
+                defaultBalance === undefined ||
+                !doctorProfileSteps ||
+                !noOfSteps ||
+                !doctorRefund ||
+                !patientRefund ||
+                !commonHolidays ||
+                !wokringHours ||
+                leaveApplyBefore === undefined ||
+                maxLeaveApply === undefined
+            ) {
                 return error(res, {
                     success: false,
                     error: appString.REQUIRED_FIELDS,
                 });
-
             }
-            console.log("hello")
+
             let adminSettings = await adminSetting.findOne({});
 
             if (adminSettings) {
-                adminSettings = await adminSetting.findOneAndUpdate({},
+                adminSettings = await adminSetting.findOneAndUpdate(
+                    {},
                     {
                         defaultBalance,
                         doctorProfileSteps,
+                        noOfSteps,
                         doctorRefund,
                         patientRefund,
                         commonHolidays,
@@ -36,10 +53,24 @@ const adminSettingController = {
                     { new: true }
                 );
 
-                return success(res, {  success: true, message: appString.ADMINSETTING_UPDATED, data: adminSettings, });
+                return success(res, {
+                    success: true,
+                    message: appString.ADMINSETTING_UPDATED,
+                    data: adminSettings,
+                });
             }
 
-            const newSteps = await adminSetting.create({  defaultBalance,  doctorProfileSteps,    doctorRefund,  patientRefund,   commonHolidays,  wokringHours,  leaveApplyBefore,   maxLeaveApply,});
+            const newSteps = await adminSetting.create({
+                defaultBalance,
+                doctorProfileSteps,
+                noOfSteps,
+                doctorRefund,
+                patientRefund,
+                commonHolidays,
+                wokringHours,
+                leaveApplyBefore,
+                maxLeaveApply,
+            });
 
             return success(res, {
                 success: true,
@@ -57,3 +88,4 @@ const adminSettingController = {
 };
 
 module.exports = adminSettingController;
+

@@ -6,7 +6,7 @@ const { appString } = require("../../utils/appString");
 const doctorEditProfileController = {
     editProfile: async (req, res) => {
         try {
-            console.log("editProfile hit ");
+            console.log("editProfile hit");
 
             const doctorId = req.user.id;
 
@@ -20,11 +20,16 @@ const doctorEditProfileController = {
                 return error(res, { message: appString.ADMINSETTING_NOT_FOUND });
             }
 
-            // Update profile
             Object.assign(doctorData, req.body);
 
             const stepsObj = adminSettings.doctorProfileSteps || {};
-            const steps = Object.values(stepsObj);
+
+            const steps = Object.values(stepsObj).filter(step => step?.key);
+
+            const requiredSteps = steps.slice(
+                0,
+                adminSettings.noOfSteps || steps.length
+            );
 
             let completedSteps = [];
 
@@ -41,7 +46,8 @@ const doctorEditProfileController = {
                 } else if (typeof value === "object" && value !== null) {
                     isValid = Object.keys(value).length > 0;
                 } else {
-                    isValid = value !== undefined && value !== null && value !== "";
+                    isValid =
+                        value !== undefined && value !== null && value !== "";
                 }
 
                 if (isValid) {
@@ -51,32 +57,25 @@ const doctorEditProfileController = {
 
             doctorData.verifiedCurrentSteps = completedSteps;
 
-            const requiredSteps = steps.slice(0, 4);
-
-            const isAllCompleted = requiredSteps.every(step =>
+            const isAllCompleted = requiredSteps.every((step) =>
                 completedSteps.includes(step.key)
             );
 
-            if (isAllCompleted) {
-                doctorData.isProfileComplete = 1;
-            } else {
-                doctorData.isProfileComplete = 0;
-            }
+            doctorData.isProfileComplete = isAllCompleted ? 1 : 0;
 
             await doctorData.save();
 
             return success(res, {
                 message: "Profile updated successfully",
-                data: doctorData
+                data: doctorData,
             });
-
         } catch (err) {
             console.error(err);
-            return error(res, { message: "Server error" });
+            return error(res, {
+                message:appString.SERVER_ERROR,
+            });
         }
-    }
+    },
 };
 
 module.exports = doctorEditProfileController;
-
-
