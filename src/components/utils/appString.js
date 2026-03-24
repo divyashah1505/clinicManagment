@@ -19,8 +19,10 @@ exports.appString = {
     INVALID_CREDENTIALS: "Invalid Credentials",
     INVALID_OR_EXPIRED_OTP: "Invalid & Expried otp",
     PATIENT_NOT_FOUND: "pATIENT nOt found ",
-    Forbidden: "You are Unauthorized",
+    ADMIN_UNAUTHORIZED: "Admin is Unauthorized",
+    PATIENT_UNAUTHORIZED: "Patient is Unauhthorized",
     DOCTOR_UNAUTHORIZED: "Doctor is  Unauthorized",
+    DOCOR_NOT_FOUND: "Doctor Not Found",
     ADMINSETTING_NOT_FOUND: "Admin Setting Not found",
     STEPSCREATED_SUCCESSFULLY: "Steps Created Successfully",
     REQUIRED_FIELDS: "Please provide all the required fields",
@@ -38,10 +40,20 @@ exports.appString = {
     LEAVE_ALEREADY_PROCEED: "Leave Alredy Proceed",
     LEAVE_APPROVED: "Leave Approved SuccessFully",
     LEAVE_REJECT: "Leave Reject Successfully",
+    APPOITMENT_BOOKIN_ADVANCED_BEFORE_3HRS: "Appointment must be booked at least 3 hours in advance",
+    DOCTOR_ON_LEAVE_FOR_SELECTED_DATE: "Doctor is on leave for selected date",
+    INAVLIABLE_SLOTS: "Invalid time slot",
+    SLOTS_ALREADY_BOOKED: "Slot already booked",
+    APPOITMENT_BOOK_SUCESSFULLY: "Appointment booked successfully",
+    APPOITMENT_NOT_FOUND: "Appoitment Not Found",
+    DOCTORS_FETCHED_SUCESSFULLY: "Doctors fetched successfully",
+
 
     ADMIN_SETTINGS_MODEL: "AdminSetting",
     ADMIN_MODEL: "Admin",
     DOCTOR_MODEL: "Doctor",
     PATIENT_MODEL: "Patients",
-    DOCTOR_LEAVE: "DoctorLeave"
+    DOCTOR_LEAVE: "DoctorLeave",
+    APPOITMENT_MODEL: "Appointment",
+
 }

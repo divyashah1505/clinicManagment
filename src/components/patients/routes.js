@@ -22,6 +22,11 @@ const routes = [
         controller: patientController.verifyOtpLogin,
         isPublic: true
     },
+    {
+        path:"/bookAppoitments",
+        method:"post",
+        controller:patientController.bookAppoitments,
+    }
    
 ]
-module.exports = routeArray(routes, router, true);
+module.exports =routes;

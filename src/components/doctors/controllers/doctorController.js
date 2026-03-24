@@ -10,7 +10,7 @@ const { render } = require("ejs");
 const client = require("../../utils/redisClient");
 const Doctor = require("../models/doctor");
 const doctorLeave = require("../models/doctorLeave");
-
+const appointment = require("../../patients/models/appotment")
 const doctorController = {
     doctorRegister: async (req, res) => {
         try {
@@ -185,8 +185,20 @@ const doctorController = {
                 message: appString.SERVER_ERROR
             });
         }
-    }
+    },
+    appoitmentStatus: async (req, res) => {
+        try {
+            const doctorId = req.user.id
+          
+            const { appotmentId } = req.params;
+            const Appoitment = appointment.findById({ appotmentId })
+            console.log(Appoitment)
+           
 
+        } catch {
+
+        }
+    }
 
 
 }

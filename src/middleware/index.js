@@ -68,7 +68,7 @@ const checkRole = (isAdminRoute, isDoctorRoute, isPatientRoute) => {
   if (isAdminRoute) {
     const data = await admin.findById(userId);
     if (data) return next();
-    return res.status(403).json({ message: appString.Forbidden });
+    return res.status(403).json({ message: appString.ADMIN_UNAUTHORIZED });
   }
 
   if (isDoctorRoute) {
@@ -80,7 +80,7 @@ const checkRole = (isAdminRoute, isDoctorRoute, isPatientRoute) => {
   if (isPatientRoute) {
     const data = await patient.findById(userId);
     if (data) return next();
-    return res.status(403).json({ message: appString.Forbidden1 });
+    return res.status(403).json({ message: appString.PATIENT_UNAUTHORIZED });
   }
 
   return res.status(403).json({ message: "Access denied" });

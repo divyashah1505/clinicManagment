@@ -64,8 +64,8 @@ const doctorSchema = new mongoose.Schema({
     },
     isLoginVerified: {
         type: Number,
-        ENUM: [ENUM.ISLOGINVERFIED.VERFIED, ENUM.ISAVAILABLE.UNVERIFIED],
-        default: ENUM.ISAVAILABLE.UNVERIFIED
+        ENUM: [ENUM.ISLOGINVERFIED.VERIFIED, ENUM.ISLOGINVERFIED.UNVERIFIED],
+        default: ENUM.ISLOGINVERFIED.UNVERIFIED
     },
 
     verifiedCurrentSteps: {

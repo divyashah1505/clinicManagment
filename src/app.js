@@ -8,7 +8,7 @@ const client = require("../src/components/utils/redisClient")
 const app = express();
 const adminRouter = require("../src/components/admin/routes");
 const doctorRouter = require("../src/components/doctors/routes")
-const patientRouter = require("../src/components/patients/routes")
+const patientRouter = require("../src/components/patients")
 const doctor = require("./components/doctors/models/doctor");
 app.set("view engine","ejs");
 app.set("views",path.resolve(__dirname,"../src/views"))

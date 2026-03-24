@@ -49,7 +49,7 @@ const adminController = {
     const { doctorId } = req.query;
     const doctor = await Doctor.findById(doctorId);
     console.log(doctor);
-    
+
     if (!doctor || doctor.isProfileComplete === ENUM.ISPROFILECOMPLETE.COMPLETE) {
       return error(res, { message: appString.DOCTOR_NOT_ELIGIBLE });
     }
@@ -59,35 +59,72 @@ const adminController = {
 
     return success(res, { message: appString.DOCTOR_VERIFIED_SUCCESSFULLY });
   },
-  updateLeaveStatus:async(req,res) =>{
-    try{
-      const {leaveId} = req.params;
+  updateLeaveStatus: async (req, res) => {
+    try {
+      const { leaveId } = req.params;
       console.log(leaveId);
-      
-      const {status} = req.body;
-      if(![1,2].includes(status)){
-        return error(res,{success:false,message:appString.STATUS_MUSTBE_1OR2})
+
+      const { status } = req.body;
+      if (![1, 2].includes(status)) {
+        return error(res, { success: false, message: appString.STATUS_MUSTBE_1OR2 })
       }
       const leave = await doctorLeave.findById(leaveId);
-      if(!leave){
-        return error(res,{ success:false,message:appString.LEVAE_REQUEST_NOT_FOUND})
+      if (!leave) {
+        return error(res, { success: false, message: appString.LEVAE_REQUEST_NOT_FOUND })
       }
-      if(leave.status !== 0){
-        return error(res,{success:false,messgae:appString.LEAVE_ALEREADY_PROCEED})
+      if (leave.status !== 0) {
+        return error(res, { success: false, messgae: appString.LEAVE_ALEREADY_PROCEED })
       }
       leave.status = status
       await leave.save();
 
-      if(status === 1){
-        await doctor.findByIdAndUpdate(leave.doctorId ,{
-          isAvailable:0
+      if (status === 1) {
+        await doctor.findByIdAndUpdate(leave.doctorId, {
+          isAvailable: 0
         })
 
-        return success(res,{success:true,message:status === 1 ?appString.LEAVE_APPROVED :appString.LEAVE_REJECT,data:leave})
+        return success(res, { success: true, message: status === 1 ? appString.LEAVE_APPROVED : appString.LEAVE_REJECT, data: leave })
       }
-    }catch (err){
+    } catch (err) {
       console.error(err)
-      return error(res,{success:false, message:appString.SERVER_ERROR})
+      return error(res, { success: false, message: appString.SERVER_ERROR })
+    }
+  },
+
+  getAllDoctors: async (req, res) => {
+    try {
+
+      const { status, isAvailable, search } = req.query;
+
+      let filter = {};
+
+      if (status) {
+        filter.status = Number(status);
+      }
+
+      if (isAvailable) {
+        filter.isAvailable = Number(isAvailable);
+      }
+
+      if (search) {
+        filter.$or = [
+          { username: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } }
+        ];
+      }
+
+      const doctors = await Doctor.find(filter)
+        .select("-password -otp -otpExpires")
+        .sort({ createdAt: -1 });
+
+      return success(res, {
+        count: doctors.length,
+        doctors
+      },appString.DOCTORS_FETCHED_SUCESSFULLY);
+
+    } catch (err) {
+      console.error(err);
+      return error(res, appString.SERVER_ERROR);
     }
   }
 

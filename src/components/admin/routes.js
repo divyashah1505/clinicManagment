@@ -32,6 +32,11 @@ const routes = [
     method:"put",
     controller:adminController.updateLeaveStatus
 
+  },
+  {
+    path:"/getAllDoctors",
+     method:"get",
+    controller:adminController.getAllDoctors
   }
  
 ]

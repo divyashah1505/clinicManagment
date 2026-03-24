@@ -12,7 +12,7 @@ module.exports = {
         INACTIVE:0
     },
     ISLOGINVERFIED:{
-        VERFIED:1,
+        VERIFIED:1,
         UNVERIFIED:0
     },
     ISPROFILECOMPLETE:{
@@ -23,5 +23,11 @@ module.exports = {
         PENDING:0,
         ACCEPT:1,
         REJECT:2
-    }
+    },
+    APPOITMENTSTATUS:{
+        PENDING:0,
+        ACCEPT:1,
+        REJECT:2
+    },
+    
 }
