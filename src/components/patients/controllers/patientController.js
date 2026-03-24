@@ -9,111 +9,128 @@ const { render } = require("ejs");
 const client = require("../../utils/redisClient");
 // const patient = require("../models/patient");
 const Patient = require("../models/patient");
-const patient = require("../models/patient");
+// const patient = require("../models/patient");
 const Appointment = require("../models/appotment");
 const Doctor = require("../../doctors/models/doctor");
 const DoctorLeave = require("../../doctors/models/doctorLeave");
 const patientController = {
-    patientRegister: async (req, res) => {
-        console.log("hit 1");
+   patientRegister: async (req, res) => {
+    try {
+        const { username, email, password, countryCode, contactNumber } = req.body;
 
-        try {
-            // console.log(req.body);
+    const patientExist = await Patient.findOne({ email });
+    if (patientExist) {
+        return error(res, { message: appString.EMAILALREDY_REGISTERED });
+    }
 
-            const { username, email, password, countryCode, contactNumber } = req.body;
-            console.log(req.body);
-
-            // console.log(req.body)
-            const patientExist = await Patient.findOne({ email });
-            if (patientExist) return error(res, { success: false, message: appString.EMAILALREDY_REGISTERED });
-
-            const phoneValidation = validateContact(countryCode, contactNumber);
-            if (!phoneValidation.valid) {
-                return error(res, { success: false, message: phoneValidation.message });
-            }
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const newPatient = await new patient({ username, email, password: hashedPassword, countryCode, contactNumber });
-            await newPatient.save();
+    const phoneValidation = validateContact(countryCode, contactNumber);
+    if (!phoneValidation.valid) {
+        return error(res, { message: phoneValidation.message });
+    }
 
 
-            return success(res, { success: true, message: appString.PATIENTS_RGISTRATION_SUCCESSFULL });
-        } catch (err) {
-            console.error(err);
-            return error(res, { success: false, message: appString.SERVER_ERROR });
-        }
-    },
+    const newPatient = new Patient({
+        username,
+        email,
+        password, 
+        countryCode,
+        contactNumber
+    });
+
+    await newPatient.save();
+
+    return success(res, {
+        message: appString.PATIENTS_RGISTRATION_SUCCESSFULL
+    });
+
+} catch (err) {
+    console.error(err);
+    return error(res, appString.SERVER_ERROR);
+}
+},
+
+
 
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
-            console.log(req.body)
+
             const patient = await Patient.findOne({ email });
 
-            // if (!patient || !(await patient.matchPassword(password))) {
-            //     return error(res, appString.INVALID_CREDENTIALS, 401);
-            // }
-            console.log("hi")
+            if (!patient) {
+                return error(res, appString.USER_NOT_FOUND);
+            }
+
+            const isMatch = await patient.matchPassword(password);
+            if (!isMatch) {
+                return error(res, appString.INVALID_CREDENTIALS);
+            }
 
             const otp = generateOTP();
             const otpExpires = Date.now() + 10 * 60 * 1000;
+
             patient.otp = otp;
             patient.otpExpires = otpExpires;
             patient.isLoginVerified = 0;
+
             await patient.save();
 
+            console.log("OTP GENERATED:", otp);
+
             const subject = "Your Login OTP Code";
-            const html = `<p>Your OTP for login is: <strong>${otp}</strong>. It is valid for 10 minutes.</p>`;
+            const html = `<p>Your OTP: <b>${otp}</b></p>`;
             await sendEmail(email, subject, html);
 
+            return success(res, {
+                message: appString.OTP_SENT_SUCCESS,
+                email: patient.email
+            });
 
-            success(
-                res,
-                { message: appString.OTP_SENT_SUCCESS, email: Patient.email },
-                appString.OTP_SENT_SUCCESS
-            );
         } catch (err) {
             console.error(err);
-            error(res, appString.LOGIN_FAILED, 500);
+            return error(res, appString.LOGIN_FAILED);
         }
     },
-
     verifyOtpLogin: async (req, res) => {
-        try {
-            const { email, otp } = req.body;
-            const Patient = await patient.findOne({ email });
+    try {
+        const { email, otp } = req.body;
 
-            if (!Patient) {
-                return error(res, appString.USER_NOT_FOUND, 404);
-            }
+    const patientData = await Patient.findOne({ email });
 
-            //   if (Patient.otp !== otp || Patient.otpExpires < Date.now()) {
-            //       return error(res, appString.INVALID_OR_EXPIRED_OTP, 400);
-            //   }
+    if (!patientData) {
+        return error(res, appString.USER_NOT_FOUND);
+    }
 
-            Patient.isLoginVerified = 1;
-            Patient.otp = undefined;
-            Patient.otpExpires = undefined;
-            await Patient.save();
+    console.log("DB OTP:", patientData.otp);
+    console.log("REQ OTP:", otp);
 
-            const tokens = await generateTokens(Patient);
+    if (
+        !patientData.otp ||
+        patientData.otp !== otp.toString() ||
+        patientData.otpExpires < Date.now()
+    ) {
+        return error(res, "Invalid or expired OTP");
+    }
 
-            success(
-                res,
-                {
-                    username: Patient.username,
-                    email: Patient.email,
-                    ...tokens,
-                },
-                appString.LOGIN_SUCCESS_VERIFIED
-            );
+    patientData.isLoginVerified = 1;
+    patientData.otp = null;
+    patientData.otpExpires = null;
 
-        } catch (err) {
-            console.error(err);
-            error(res, appString.OTP_VERIFICATION_FAILED, 500);
-        }
-    },
+    await patientData.save();
+
+    const tokens = await generateTokens(patientData);
+
+    return success(res, {
+        username: patientData.username,
+        email: patientData.email,
+        ...tokens,
+    });
+
+} catch (err) {
+    console.error(err);
+    return error(res, appString.OTP_VERIFICATION_FAILED);
+}
+},
 
 
 
@@ -180,8 +197,8 @@ const patientController = {
                     }
                 }
             }
-            if(startTime !== endTime ){
-                return error(res,{messgae:"start time and end  time not same "})
+            if (startTime !== endTime) {
+                return error(res, { messgae: "start time and end  time not same " })
             }
 
             // if (!slotExists) {
