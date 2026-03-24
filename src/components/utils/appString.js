@@ -47,7 +47,7 @@ exports.appString = {
     APPOITMENT_BOOK_SUCESSFULLY: "Appointment booked successfully",
     APPOITMENT_NOT_FOUND: "Appoitment Not Found",
     DOCTORS_FETCHED_SUCESSFULLY: "Doctors fetched successfully",
-
+    STARTTIME_AND_ENDTIME_CANNOT_SAME: "Start time and end time cannot be the same",
 
     ADMIN_SETTINGS_MODEL: "AdminSetting",
     ADMIN_MODEL: "Admin",
