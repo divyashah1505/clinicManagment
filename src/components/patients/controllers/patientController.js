@@ -6,7 +6,9 @@ const Patient = require("../models/patient");
 const Appointment = require("../models/appotment");
 const Doctor = require("../../doctors/models/doctor");
 const DoctorLeave = require("../../doctors/models/doctorLeave");
-
+const ENUM = require("../../utils/enum");
+const appotment = require("../models/appotment");
+const { default: mongoose } = require("mongoose");
 const patientController = {
 
     patientRegister: async (req, res) => {
@@ -96,7 +98,7 @@ const patientController = {
             const { email, otp } = req.body;
 
             const patientData = await Patient.findOne({ email });
-            
+
             if (!patientData) {
                 return error(res, appString.USER_NOT_FOUND);
             }
@@ -106,9 +108,8 @@ const patientController = {
             console.log("REQ OTP:", otp);
 
             if (
-                !patientData.otp || patientData.otp !== otp || patientData.otpExpires < Date.now())
-             {
-                return error(res,appString.INVALID_OR_EXPIRED_OTP);
+                !patientData.otp || patientData.otp !== otp || patientData.otpExpires < Date.now()) {
+                return error(res, appString.INVALID_OR_EXPIRED_OTP);
             }
 
             await Patient.updateOne(
@@ -160,6 +161,25 @@ const patientController = {
             const formattedEnd = formatTime(endTime);
 
             const [startH, startM] = formattedStart.split(":").map(Number);
+            const [endH, endM] = formattedEnd.split(":").map(Number);
+            const minAllowedMinutes = 9 * 60;
+            const maxAllowedMinutes = 18 * 60;
+            const startTotalMinutes = startH * 60 + startM;
+            const endTotalMinutes = endH * 60 + endM;
+            if (startTotalMinutes < minAllowedMinutes || endTotalMinutes > maxAllowedMinutes) {
+                return error(res, { message: appString.APPOITMENT_MUSTBE_9AMTO18PM });
+            }
+
+
+            if (endTotalMinutes <= startTotalMinutes) {
+                return error(res, { message: appString.ENDTIME_MUSTBEFORE_STARTTIME });
+            }
+
+            if (endTotalMinutes - startTotalMinutes !== 60) {
+                return error(res, {
+                    message: appString.APPOITMENT_MUSTBE_1HRS_LONG,
+                });
+            }
 
             const appointmentStart = new Date(appointmentDate);
             appointmentStart.setHours(startH, startM, 0, 0);
@@ -182,8 +202,10 @@ const patientController = {
                 return error(res, appString.DOCTOR_LEAVE);
             }
 
-            if (startTime === endTime) {
-                return error(res, { message:appString.STARTTIME_AND_ENDTIME_CANNOT_SAME });
+            if (formattedStart === formattedEnd) {
+                return error(res, {
+                    message: appString.STARTTIME_AND_ENDTIME_CANNOT_SAME,
+                });
             }
 
             const alreadyBooked = await Appointment.findOne({
@@ -196,13 +218,7 @@ const patientController = {
                 return error(res, appString.SLOTS_ALREADY_BOOKED);
             }
 
-            const appointment = await Appointment.create({
-                doctorId,
-                patientId,
-                appointmentDate,
-                startTime: formattedStart,
-                endTime: formattedEnd,
-            });
+            const appointment = await Appointment.create({ doctorId, patientId, appointmentDate, startTime: formattedStart, endTime: formattedEnd });
 
             return success(res, appointment, appString.APPOITMENT_BOOK_SUCESSFULLY);
 
@@ -210,7 +226,148 @@ const patientController = {
             console.error(err);
             return error(res, appString.SERVER_ERROR);
         }
-    }
+    },
+    cancelAppointment: async (req, res) => {
+        console.log("hi");
+
+        try {
+            const patientId = req.user.id;
+            console.log("p id",patientId)
+            const { appoitmentId } = req.params;
+
+            const appoint = await Appointment.findOne({
+                _id: appoitmentId,
+                patientId
+            });
+            console.log(appoint)
+            if (!appoint) {
+                return error(res, { message: appString.APPOITMENT_NOT_FOUND });
+            }
+
+            if (appoint.status === ENUM.APPOITMENTSTATUS.CANCEL) {
+                return error(res, {
+                    message: appString.APPOITMENT_ALREADY_CANCEL
+                });
+            }
+
+            appoint.status = ENUM.APPOITMENTSTATUS.CANCEL;
+            await appoint.save();
+
+            return success(res, {
+                message: appString.APPOITMENT_CANCEL_SUCCESSFULLY,
+                data: appoint
+            });
+
+        } catch (err) {
+            console.error(err);
+            return error(res, appString.SERVER_ERROR);
+        }
+    },
+    rescheduleAppointment: async (req, res) => {
+        try {
+            const patientId = req.user.id;
+            const { appoitmentId } = req.params;
+            const { appointmentDate, startTime, endTime } = req.body;
+
+            const appoint = await Appointment.findOne({
+                _id: appoitmentId,
+                patientId
+            });
+
+            if (!appoint) {
+                return error(res, { message: appString.APPOITMENT_NOT_FOUND });
+            }
+
+            if (appoint.status === ENUM.APPOITMENTSTATUS.REJECT) {
+                return error(res, {
+                    message:appString.CANNNOT_RESCHEDULED_AFTERREJECT
+                });
+            }
+
+            const formatTime = (time) => {
+                if (!time.includes(":")) {
+                    return `${time.padStart(2, "0")}:00`;
+                }
+                return time;
+            };
+
+            const formattedStart = formatTime(startTime);
+            const formattedEnd = formatTime(endTime);
+
+            if (formattedStart === formattedEnd) {
+                return error(res, {
+                    message: appString.STARTTIME_AND_ENDTIME_CANNOT_SAME
+                });
+            }
+
+            const [oldH, oldM] = appoint.startTime.split(":").map(Number);
+            const oldStartDateTime = new Date(appoint.appointmentDate);
+            oldStartDateTime.setHours(oldH, oldM, 0, 0);
+
+            const now = new Date();
+            const diffMinutes = (oldStartDateTime - now) / (1000 * 60);
+
+            if (diffMinutes < 60) {
+                return error(res, {
+                    message:appString.CANNOT_RESCHEDULED
+                });
+            }
+
+            const [newH, newM] = formattedStart.split(":").map(Number);
+            const newStartDateTime = new Date(appointmentDate);
+            newStartDateTime.setHours(newH, newM, 0, 0);
+
+            const diffHours = (newStartDateTime - now) / (1000 * 60 * 60);
+
+            if (diffHours < 3) {
+                return error(res, appString.APPOITMENT_BOOKIN_ADVANCED_BEFORE_3HRS);
+            }
+
+            const doctor = await Doctor.findById(appoint.doctorId);
+            if (!doctor) {
+                return error(res, appString.DOCOR_NOT_FOUND);
+            }
+
+            const leave = await DoctorLeave.findOne({
+                doctorId: appoint.doctorId,
+                fromDate: { $lte: appointmentDate },
+                toDate: { $gte: appointmentDate },
+                status: 2,
+            });
+
+            if (leave) {
+                return error(res, appString.DOCTOR_LEAVE);
+            }
+
+            const alreadyBooked = await Appointment.findOne({
+                doctorId: appoint.doctorId,
+                appointmentDate,
+                startTime: formattedStart,
+                _id: { $ne: appoitmentId }
+            });
+
+            if (alreadyBooked) {
+                return error(res, appString.SLOTS_ALREADY_BOOKED);
+            }
+
+            appoint.appointmentDate = appointmentDate;
+            appoint.startTime = formattedStart;
+            appoint.endTime = formattedEnd;
+
+            appoint.status = ENUM.APPOITMENTSTATUS.PENDING;
+
+            await appoint.save();
+
+            return success(res, {
+                message: appString.APPOITMENT_RESCHEDULED_SUCCESSFULLY,
+                data: appoint
+            });
+
+        } catch (err) {
+            console.error(err);
+            return error(res, appString.SERVER_ERROR);
+        }
+    },
 };
 
 module.exports = patientController;

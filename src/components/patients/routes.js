@@ -26,6 +26,16 @@ const routes = [
         path:"/bookAppoitments",
         method:"post",
         controller:patientController.bookAppoitments,
+    },
+    {
+        path:"/cancelAppoitment/:appoitmentId",
+        method:"put",
+        controller:patientController.cancelAppointment
+    },
+    {
+        path:"/rescheduleAppointment/:appoitmentId",
+        method:"put",
+        controller:patientController.rescheduleAppointment
     }
    
 ]

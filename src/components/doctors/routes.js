@@ -33,6 +33,17 @@ const routes = [
         path: "/apply-leave",
         method: "post",
         controller: doctorController.applyLeave
+    },
+    {
+        path: "/updateAppointmentStatus/:appointmentId",
+        method: "put",
+        controller: doctorController.updateAppointmentStatus
+    },
+    {
+        path:"/getDoctorAppointments",
+        method:"get",
+        controller:doctorController.getDoctorAppointments
     }
+
 ]
 module.exports = routeArray(routes, router, false, true, false);

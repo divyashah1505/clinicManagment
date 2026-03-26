@@ -10,7 +10,8 @@ const { render } = require("ejs");
 const client = require("../../utils/redisClient");
 const Doctor = require("../models/doctor");
 const doctorLeave = require("../models/doctorLeave");
-const appointment = require("../../patients/models/appotment")
+const Appointment = require("../../patients/models/appotment")
+const ENUM = require("../../utils/enum")
 const doctorController = {
     doctorRegister: async (req, res) => {
         try {
@@ -44,8 +45,6 @@ const doctorController = {
             if (!doctor || !(await doctor.matchPassword(password))) {
                 return error(res, appString.INVALID_CREDENTIALS, 401);
             }
-
-
             const otp = generateOTP();
             const otpExpires = Date.now() + 10 * 60 * 1000;
             doctor.otp = otp;
@@ -119,7 +118,7 @@ const doctorController = {
                 if (!Array.isArray(slots) || slots.length === 0) {
                     return error(res, {
                         success: false,
-                        message: "Slots must be a non-empty array"
+                        message: appString.SLOTS_MUSTBE_NONEMPTY_ARRAY
                     });
                 }
 
@@ -129,7 +128,7 @@ const doctorController = {
                 if (startDateOnly !== endDateOnly) {
                     return error(res, {
                         success: false,
-                        message: "When slots are selected, fromDate and toDate must be the same day"
+                        message: appString.SLOTESSELECTED_FROMDATEANDTODATE_MUSTBE_SAME
                     });
                 }
             }
@@ -186,20 +185,107 @@ const doctorController = {
             });
         }
     },
-    appoitmentStatus: async (req, res) => {
+    updateAppointmentStatus: async (req, res) => {
         try {
-            const doctorId = req.user.id
-          
-            const { appotmentId } = req.params;
-            const Appoitment = appointment.findById({ appotmentId })
-            console.log(Appoitment)
-           
+            const { appointmentId } = req.params;
+            const { status } = req.body;
 
-        } catch {
+            if (![ENUM.APPOITMENTSTATUS.ACCEPT, ENUM.APPOITMENTSTATUS.REJECT].includes(status)) {
+                return res.status(400).json({
+                    success: false,
+                    message: appString.INVALID_STATUS
+                });
+            }
 
+            const appointment = await Appointment.findById(appointmentId);
+
+            if (!appointment) {
+                return res.status(404).json({
+                    success: false,
+                    message: appString.APPOITMENT_NOT_FOUND
+                });
+            }
+
+            if (appointment.status !== ENUM.APPOITMENTSTATUS.PENDING) {
+                return res.status(400).json({
+                    success: false,
+                    message: appString.APPOITMENT_ALREADY_BOOKED
+                });
+            }
+
+            appointment.status = status;
+            await appointment.save();
+
+            return res.status(200).json({
+                success: true,
+                message: status === ENUM.APPOITMENTSTATUS.ACCEPT
+                    ? appString.APPOITMENT_BOOKED_SUCCESSFULLY
+                    : appString.APPOITMENT_REJECTED_SUCCESSFULLY,
+                data: appointment
+            });
+
+        } catch (error) {
+            console.error("Update Appointment Error:", error);
+            return res.status(500).json({
+                success: false,
+                message: appString.SERVER_ERROR
+            });
         }
-    }
+    },
+    getDoctorAppointments: async (req, res) => {
+        try {
+            console.log("hit")
+            const doctorId = req.user.id;
 
+            let { status, page = 1, limit = 10, date } = req.query;
+
+            const query = { doctorId };
+
+            if (status) {
+                query.status = Number(status);
+            }
+
+            if (date) {
+                const start = new Date(date);
+                start.setHours(0, 0, 0, 0);
+
+                const end = new Date(date);
+                end.setHours(23, 59, 59, 999);
+
+                query.appointmentDate = { $gte: start, $lte: end };
+            }
+
+            const skip = (page - 1) * limit;
+
+            const appointments = await Appointment
+                .find(query)
+                .populate("patientId", "username email contactNumber")
+                .sort({ appointmentDate: -1 })
+                .skip(skip)
+                .limit(Number(limit));
+
+            const total = await Appointment.countDocuments(query);
+
+            return success(res, {
+                success: true,
+                message: appString.APPOITMENT_FETCHED_SUCCESSFULLY,
+                data: appointments,
+                pagination: {
+                    total,
+                    page: Number(page),
+                    limit: Number(limit),
+                    pages: Math.ceil(total / limit)
+                }
+            });
+
+        } catch (err) {
+            console.error(err);
+            return error(res, {
+                success: false,
+                message: appString.SERVER_ERROR
+            });
+        }
+    },
 
 }
 module.exports = doctorController

@@ -27,7 +27,8 @@ module.exports = {
     APPOITMENTSTATUS:{
         PENDING:0,
         ACCEPT:1,
-        REJECT:2
-    },
+        REJECT:2,
+        CANCEL:3
+    }
     
 }
