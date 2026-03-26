@@ -63,11 +63,13 @@ exports.appString = {
     APPOITMENT_ALREADY_CANCEL:"Appoitment Already Cancelled",
      CANNOT_RESCHEDULED:"Cannot reschedule within 60 minutes of appointment",
      CANNNOT_RESCHEDULED_AFTERREJECT: "Cannot reschedule a rejected appointment",
+     USERWALLET_NOT_FOUND:"userWallet Not Found",
     ADMIN_SETTINGS_MODEL: "AdminSetting",
     ADMIN_MODEL: "Admin",
     DOCTOR_MODEL: "Doctor",
     PATIENT_MODEL: "Patients",
     DOCTOR_LEAVE: "DoctorLeave",
     APPOITMENT_MODEL: "Appointment",
+    WALLET_MODEL:"Wallet"
 
 }

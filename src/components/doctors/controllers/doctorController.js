@@ -11,7 +11,9 @@ const client = require("../../utils/redisClient");
 const Doctor = require("../models/doctor");
 const doctorLeave = require("../models/doctorLeave");
 const Appointment = require("../../patients/models/appotment")
-const ENUM = require("../../utils/enum")
+const Wallet = require("../../patients/models/wallet")
+const ENUM = require("../../utils/enum");
+const patient = require("../../patients/models/patient");
 const doctorController = {
     doctorRegister: async (req, res) => {
         try {
@@ -26,9 +28,10 @@ const doctorController = {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newDoctor = await new doctor({ username, email, password: hashedPassword, countryCode, contactNumber })
+            const newDoctor = await doctor({ username, email, password, countryCode, contactNumber })
             await newDoctor.save();
 
+            await Wallet.create({ doctorId: newDoctor._id })
 
             return success(res, { success: true, message: appString.DOCTOR_RGISTRATION_SUCCESSFULL });
         } catch (err) {
@@ -215,8 +218,14 @@ const doctorController = {
 
             appointment.status = status;
             await appointment.save();
+            const charges = appointment.totalAmount;
+            console.log(charges)
+            await Wallet.updateOne({ patientId: appointment.patientId }, { $inc: { frozenAmount: -charges } });
 
-            return res.status(200).json({
+            const doc = await Wallet.updateOne({ doctorId: appointment.doctorId }, { $inc: { totalAmount: charges } }, { upsert: true });
+            console.log(doc)
+            // console
+            return success(res, {
                 success: true,
                 message: status === ENUM.APPOITMENTSTATUS.ACCEPT
                     ? appString.APPOITMENT_BOOKED_SUCCESSFULLY
@@ -226,7 +235,7 @@ const doctorController = {
 
         } catch (error) {
             console.error("Update Appointment Error:", error);
-            return res.status(500).json({
+            return success({
                 success: false,
                 message: appString.SERVER_ERROR
             });

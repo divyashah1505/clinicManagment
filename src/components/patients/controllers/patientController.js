@@ -9,6 +9,9 @@ const DoctorLeave = require("../../doctors/models/doctorLeave");
 const ENUM = require("../../utils/enum");
 const appotment = require("../models/appotment");
 const { default: mongoose } = require("mongoose");
+const Wallet = require("../models/wallet");
+const doctor = require("../../doctors/models/doctor");
+const { weekdays } = require("moment");
 const patientController = {
 
     patientRegister: async (req, res) => {
@@ -34,7 +37,7 @@ const patientController = {
             });
 
             await newPatient.save();
-
+            await Wallet.create({patientId:newPatient._id,totalAmount:500})
             return success(res, {
                 message: appString.PATIENTS_RGISTRATION_SUCCESSFULL
             });
@@ -139,17 +142,137 @@ const patientController = {
         }
     },
 
+   getDoctorAvailableSlots: async (req, res) => {
+    try {
+        console.log("hello")
+        const { doctorId, date } = req.query;
+
+    if (!doctorId || !date) {
+        return error(res, {
+            message: appString.DOCTORID_DATE_REQUIRED
+        });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+
+    if (!doctor) {
+        return error(res, appString.DOCOR_NOT_FOUND);
+    }
+
+    const selectedDate = new Date(date);
+    const dayName = selectedDate.toLocaleDateString("en-US", {
+        weekday: "long"
+    }).toLowerCase();
+
+    const daySlots = doctor.timeSlots?.get(dayName);
+
+    if (!daySlots || daySlots.length === 0) {
+        return success(res, {
+            message: appString.SLOTSNOT_AVAILABLE,
+            data: []
+        });
+    }
+
+    const leave = await DoctorLeave.findOne({
+        doctorId,
+        fromDate: { $lte: selectedDate },
+        toDate: { $gte: selectedDate },
+        status: 2,
+    });
+
+    if (leave) {
+        return success(res, {
+            message:appString.DOCTOR_LEAVE,
+            data: []
+        });
+    }
+
+    const bookedAppointments = await Appointment.find({
+        doctorId,
+        appointmentDate: {
+            $gte: new Date(date + "T00:00:00"),
+            $lte: new Date(date + "T23:59:59")
+        }
+    });
+
+    const bookedTimes = bookedAppointments.map(a => a.startTime);
+
+    const generateSlots = (start, end) => {
+        const slots = [];
+
+        let [hour, min] = start.split(":").map(Number);
+        let [endHour, endMin] = end.split(":").map(Number);
+
+        let current = new Date();
+        current.setHours(hour, min, 0, 0);
+
+        const endTime = new Date();
+        endTime.setHours(endHour, endMin, 0, 0);
+
+        while (current < endTime) {
+            let slotStart = current.toTimeString().slice(0, 5);
+
+            current.setMinutes(current.getMinutes() + 30);
+
+            let slotEnd = current.toTimeString().slice(0, 5);
+
+            slots.push({
+                startTime: slotStart,
+                endTime: slotEnd
+            });
+        }
+
+        return slots;
+    };
+
+    let availableSlots = [];
+
+    for (let slotRange of daySlots) {
+        const slots = generateSlots(slotRange.startTime, slotRange.endTime);
+
+        slots.forEach(slot => {
+            if (!bookedTimes.includes(slot.startTime)) {
+                availableSlots.push(slot);
+            }
+        });
+    }
+
+    const today = new Date();
+    const isToday = today.toDateString() === selectedDate.toDateString();
+
+    if (isToday) {
+        const currentTime = today.toTimeString().slice(0, 5);
+
+        availableSlots = availableSlots.filter(
+            slot => slot.startTime > currentTime
+        );
+    }
+
+    return success(res, {
+        message: appString.SLOTS_FETECH_SUCCESS,
+        data: availableSlots
+    });
+
+} catch (err) {
+    console.error(err);
+    return error(res, appString.SERVER_ERROR);
+}
+},
+
+
+
     bookAppoitments: async (req, res) => {
         try {
+            console.log("ihi")
             const patientId = req.user.id;
 
             const { doctorId, appointmentDate, startTime, endTime } = req.body;
-
+            console.log(req.body)
             const doctor = await Doctor.findById(doctorId);
             if (!doctor) {
                 return error(res, appString.DOCOR_NOT_FOUND);
             }
-
+            console.log(doctor)
             const formatTime = (time) => {
                 if (!time.includes(":")) {
                     return `${time.padStart(2, "0")}:00`;
@@ -190,18 +313,18 @@ const patientController = {
             if (diffHours < 3) {
                 return error(res, appString.APPOITMENT_BOOKIN_ADVANCED_BEFORE_3HRS);
             }
-
+            console.log("helloooo")
             const leave = await DoctorLeave.findOne({
                 doctorId,
                 fromDate: { $lte: appointmentDate },
                 toDate: { $gte: appointmentDate },
                 status: 2,
             });
-
+            // console.log(leave)
             if (leave) {
                 return error(res, appString.DOCTOR_LEAVE);
             }
-
+            console.log("hi")
             if (formattedStart === formattedEnd) {
                 return error(res, {
                     message: appString.STARTTIME_AND_ENDTIME_CANNOT_SAME,
@@ -218,8 +341,16 @@ const patientController = {
                 return error(res, appString.SLOTS_ALREADY_BOOKED);
             }
 
-            const appointment = await Appointment.create({ doctorId, patientId, appointmentDate, startTime: formattedStart, endTime: formattedEnd });
-
+            const userWallet = await Wallet.findOne({patientId})
+            if(!userWallet){
+                return error(res, appString.USERWALLET_NOT_FOUND);
+            }
+            console.log(userWallet)
+            const appointment = await Appointment.create({ doctorId, patientId, appointmentDate, startTime: formattedStart, endTime: formattedEnd,totalAmount:doctor.appointmentsCharges });
+            console.log(appointment)
+            userWallet.totalAmount -= doctor.appointmentsCharges;
+            userWallet.frozenAmount += doctor.appointmentsCharges;
+            await userWallet.save(); 
             return success(res, appointment, appString.APPOITMENT_BOOK_SUCESSFULLY);
 
         } catch (err) {

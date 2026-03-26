@@ -23,6 +23,11 @@ const routes = [
         isPublic: true
     },
     {
+        path: "/getDoctorAvailableSlots",
+        method: "get",
+        controller: patientController.getDoctorAvailableSlots,
+    },
+    {
         path:"/bookAppoitments",
         method:"post",
         controller:patientController.bookAppoitments,

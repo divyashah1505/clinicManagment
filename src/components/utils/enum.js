@@ -29,6 +29,10 @@ module.exports = {
         ACCEPT:1,
         REJECT:2,
         CANCEL:3
+    },
+    WALLETSTATUS:{
+        ACTIVE:1,
+        INACTIVE:0
     }
     
 }
