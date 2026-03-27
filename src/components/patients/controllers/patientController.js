@@ -560,11 +560,18 @@ const patientController = {
 
     cancelAppointment: async (req, res) => {
         try {
-            const { appointmentId } = req.params;
             const patientId = req.user.id;
+            console.log("p id", patientId)
+            const { appoitmentId } = req.params;
 
-            const appoint = await Appointment.findOne({ _id: appointmentId, patientId });
-            if (!appoint) return error(res, appString.APPOITMENT_NOT_FOUND);
+            const appoint = await Appointment.findOne({
+                _id: appoitmentId,
+                patientId
+            });
+            console.log(appoint)
+            if (!appoint) {
+                return error(res, { message: appString.APPOITMENT_NOT_FOUND });
+            }
 
             if (appoint.status === ENUM.APPOITMENTSTATUS.CANCEL) {
                 return error(res, appString.APPOITMENT_ALREADY_CANCEL);
@@ -576,13 +583,13 @@ const patientController = {
             start.setHours(h, m);
 
             const diffMin = (start - now) / (1000 * 60);
-
             let refund = 0;
             if (diffMin > 180) refund = 100;
             else if (diffMin > 120) refund = 50;
             else if (diffMin > 60) refund = 20;
 
             const refundAmount = (appoint.totalAmount * refund) / 100;
+
             await Wallet.updateOne(
                 { patientId },
                 {
@@ -594,24 +601,37 @@ const patientController = {
             );
 
             appoint.status = ENUM.APPOITMENTSTATUS.CANCEL;
+            appoint.cancelBy = patientId;
+
             await appoint.save();
 
             return success(res, { refundAmount }, "Cancelled");
-
         } catch (err) {
             console.error(err);
             return error(res, appString.SERVER_ERROR);
         }
     },
 
+
     rescheduleAppointment: async (req, res) => {
         try {
-            const { appointmentId } = req.params;
-            const { appointmentDate, startTime, endTime } = req.body;
+            const { appoitmentId } = req.params;
             const patientId = req.user.id;
 
-            const appoint = await Appointment.findOne({ _id: appointmentId, patientId });
-            if (!appoint) return error(res, appString.APPOITMENT_NOT_FOUND);
+            // const appoint = await Appointment.findOne({ _id: appointmentId, patientId });
+            // if (!appoint) return error(res, appString.APPOITMENT_NOT_FOUND);
+
+
+            const appoint = await Appointment.findOne({
+                _id: appoitmentId,
+                patientId
+            });
+
+            if (!appoint) {
+                return error(res, { message: appString.APPOITMENT_NOT_FOUND });
+            }
+
+
 
             const oldStart = new Date(appoint.appointmentDate);
             const [h, m] = appoint.startTime.split(":").map(Number);
@@ -621,20 +641,28 @@ const patientController = {
                 return error(res, "Cannot reschedule within 60 mins");
             }
 
+            const nextDate = new Date(appoint.appointmentDate);
+            nextDate.setDate(nextDate.getDate() + 1);
+
+            const newDateString = nextDate.toISOString().split('T')[0];
+
+            const newStartTime = appoint.startTime;
+            const newEndTime = appoint.endTime;
+
             const exist = await Appointment.findOne({
                 doctorId: appoint.doctorId,
-                appointmentDate,
-                startTime,
-                _id: { $ne: appointmentId }
+                appointmentDate: newDateString,
+                startTime: newStartTime,
+                _id: { $ne: appoitmentId }
             });
 
             if (exist) return error(res, appString.SLOTS_ALREADY_BOOKED);
 
-            appoint.appointmentDate = appointmentDate;
-            appoint.startTime = startTime;
-            appoint.endTime = endTime;
+            appoint.appointmentDate = newDateString;
+            appoint.startTime = newStartTime;
+            appoint.endTime = newEndTime;
             appoint.status = ENUM.APPOITMENTSTATUS.PENDING;
-
+            appoint.cancelBy = null;
             await appoint.save();
 
             return success(res, appoint, appString.RESCHEDULED);
