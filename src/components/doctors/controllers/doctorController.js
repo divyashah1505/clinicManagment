@@ -87,6 +87,7 @@ const doctorController = {
             doctor.isLoginVerified = 1;
             doctor.otp = undefined;
             doctor.otpExpires = undefined;
+
             await doctor.save();
 
             const tokens = await generateTokens(doctor);
@@ -222,7 +223,7 @@ const doctorController = {
             console.log(charges)
             await Wallet.updateOne({ patientId: appointment.patientId }, { $inc: { frozenAmount: -charges } });
 
-            const doc = await Wallet.updateOne({ doctorId: appointment.doctorId }, { $inc: { totalAmount: charges } }, { upsert: true });
+            const doc = await Wallet.updateOne({ doctorId: appointment.doctorId }, { $inc: { frozenAmount: appointment.totalAmount } }, { upsert: true });
             console.log(doc)
             // console
             return success(res, {

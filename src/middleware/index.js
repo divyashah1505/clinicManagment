@@ -86,7 +86,7 @@ const checkRole = (isAdminRoute, isDoctorRoute, isPatientRoute) => {
   return res.status(403).json({ message: "Access denied" });
 } catch (err) {
   console.error("Auth Middleware Error:", err);
-  return res.status(500).json({ message: "Internal Server Error" });
+  return res.status(500).json({ message: appString.SERVER_ERROR });
 }
   };
 };

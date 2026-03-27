@@ -50,6 +50,9 @@ isLoginVerified: {
     type: Number,
     enum: [ENUM.ISLOGINVERFIED.VERIFIED, ENUM.ISLOGINVERFIED.UNVERIFIED],
     default: ENUM.ISLOGINVERFIED.UNVERFIED || 0
+},
+cancelBy:{
+    // type
 }
 }, { timestamps: true });
 

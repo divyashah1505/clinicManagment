@@ -26,11 +26,14 @@ const appointmentSchema = new mongoose.Schema({
     },
     status: {
         type: Number,
-        ENUM: [ENUM.APPOITMENTSTATUS.PENDING, ENUM.APPOITMENTSTATUS.ACCEPT, ENUM.APPOITMENTSTATUS.REJECT],
+        ENUM: [ENUM.APPOITMENTSTATUS.PENDING, ENUM.APPOITMENTSTATUS.ACCEPT, ENUM.APPOITMENTSTATUS.REJECT, ENUM.APPOITMENTSTATUS.COMPLETED],
         default: ENUM.APPOITMENTSTATUS.PENDING
     },
     totalAmount:{
         type:Number
+    },
+    cancelBy:{
+        type: mongoose.Schema.Types.ObjectId,
     }
 }, { timestamps: true });
 

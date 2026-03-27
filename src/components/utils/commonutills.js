@@ -8,6 +8,10 @@ const client = require("../utils/redisClient")
 const parsePhoneNumberFromString = require("libphonenumber-js");
 const { appString } = require("./appString");
 const uploadDir = path.join(__dirname, "../../../uploads/IMG");
+const Wallet = require("../patients/models/wallet")
+const Appointment = require("../patients/models/appotment")
+const ENUM = require("../utils/enum")
+const cron = require("node-cron")
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -63,7 +67,7 @@ const generateTokens = async (user) => {
     return { accessToken, refreshToken };
 };
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+    return Math.floor(100000 + Math.random() * 900000).toString();
 };
 const handleRefreshToken = async (req, res) => {
     try {
@@ -98,21 +102,62 @@ const handleRefreshToken = async (req, res) => {
     }
 };
 const validateContact = (countryCode, contactNumber) => {
-  try {
-    if (!countryCode || !contactNumber) return { valid: false, message: appString.COUNTRY_CODECONTACT_NUMBER_REQUIRED };
-    if (!countryCode.startsWith("+")) return { valid: false, message: appString.CODEMUSTSTARTSWITHADDITIONOPERATORS };
+    try {
+        if (!countryCode || !contactNumber) return { valid: false, message: appString.COUNTRY_CODECONTACT_NUMBER_REQUIRED };
+        if (!countryCode.startsWith("+")) return { valid: false, message: appString.CODEMUSTSTARTSWITHADDITIONOPERATORS };
 
-    const fullNumber = `${countryCode}${contactNumber}`;
-    const parsed = parsePhoneNumberFromString(fullNumber);
+        const fullNumber = `${countryCode}${contactNumber}`;
+        const parsed = parsePhoneNumberFromString(fullNumber);
 
-    if (!parsed || !parsed.isValid()) {
-      return { valid: false, message: appString.INVALID_PHONEFORMAT };
+        if (!parsed || !parsed.isValid()) {
+            return { valid: false, message: appString.INVALID_PHONEFORMAT };
+        }
+
+        return { valid: true, fullNumber: parsed.number, country: parsed.country };
+    } catch (err) {
+        return { valid: false, message: appString.INVALID_PHONEFORMAT };
     }
-
-    return { valid: true, fullNumber: parsed.number, country: parsed.country };
-  } catch (err) {
-    return { valid: false, message: appString.INVALID_PHONEFORMAT };
-  }
 };
 
-module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, validateContact,generateOTP }
+cron.schedule('*/20 * * * *', async () => {
+    try {
+        console.log('Running appointment auto-reject cron...');
+        
+        const now = new Date(); 
+        const cutoffTime = new Date(now.getTime() - 20 * 60 * 1000);
+        
+        const pendingAppointments = await Appointment.find({
+            status: ENUM.APPOITMENTSTATUS.PENDING, // Ensure this equals 0
+            createdAt: { $lte: cutoffTime }
+        });
+
+        for (let appoint of pendingAppointments) {
+            const refundAmount = Number(appoint.totalAmount); 
+            
+            if (!isNaN(refundAmount) && refundAmount > 0) { 
+                await Wallet.updateOne(
+                    { patientId: appoint.patientId },
+                    { 
+                        $inc: { 
+                            totalAmount: refundAmount, 
+                            frozenAmount: -refundAmount 
+                        } 
+                    }
+                );
+            } else {
+                console.warn(`Skipping refund for appointment ${appoint._id}: invalid amount`);
+            }
+
+            appoint.status = ENUM.APPOITMENTSTATUS.REJECT;
+            await appoint.save();
+        }
+
+        console.log(`Auto-rejected ${pendingAppointments.length} appointments`);
+    } catch (err) {
+        console.error('Cron error:', err);
+    }
+});
+
+
+
+module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, validateContact, generateOTP }

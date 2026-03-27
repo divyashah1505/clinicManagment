@@ -66,7 +66,7 @@ const doctorEditProfileController = {
             await doctorData.save();
 
             return success(res, {
-                message: "Profile updated successfully",
+                message: appString.PROFILE_UPDATED_SUCCESSFULLY,
                 data: doctorData,
             });
         } catch (err) {

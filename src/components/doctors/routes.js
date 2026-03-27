@@ -3,7 +3,6 @@ const { routeArray } = require("../../middleware")
 const express = require("express");
 const doctorEditProfileController = require("../doctors/controllers/doctorEditProfile")
 const router = express.Router();
-
 const routes = [
     {
         path: "/register",
@@ -32,17 +31,19 @@ const routes = [
     {
         path: "/apply-leave",
         method: "post",
-        controller: doctorController.applyLeave
+        controller: doctorController.applyLeave,
     },
     {
         path: "/updateAppointmentStatus/:appointmentId",
         method: "put",
-        controller: doctorController.updateAppointmentStatus
+        controller: doctorController.updateAppointmentStatus,
+
     },
     {
-        path:"/getDoctorAppointments",
-        method:"get",
-        controller:doctorController.getDoctorAppointments
+        path: "/getDoctorAppointments",
+        method: "get",
+        controller: doctorController.getDoctorAppointments,
+
     }
 
 ]

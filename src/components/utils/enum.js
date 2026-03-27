@@ -28,7 +28,8 @@ module.exports = {
         PENDING:0,
         ACCEPT:1,
         REJECT:2,
-        CANCEL:3
+        CANCEL:3,
+        COMPLETED:4
     },
     WALLETSTATUS:{
         ACTIVE:1,
